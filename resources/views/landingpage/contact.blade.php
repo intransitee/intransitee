@@ -20,17 +20,18 @@
           <div class="info">
             <div>
               <i class="ri-map-pin-line"></i>
-              <p>APL Tower Lt 25<br>Jl. Letjen S. Parman Kav. 28<br>Jakarta Barat, 11470</p>
+              {{-- <p>APL Tower Lt 25<br>Jl. Letjen S. Parman Kav. 28<br>Jakarta Barat, 11470</p> --}}
+              <p>Lorem Ipsum is simply dummy text</p>
             </div>
 
             <div>
               <i class="ri-mail-send-line"></i>
-              <p>support@intransitee.id</p>
+              <p>Lorem Ipsum is simply dummy text</p>
             </div>
 
             <div>
               <i class="ri-phone-line"></i>
-              <p>+62 21 2559 4901</p>
+              <p>Lorem Ipsum is simply dummy text</p>
             </div>
 
           </div>

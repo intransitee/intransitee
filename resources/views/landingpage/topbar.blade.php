@@ -13,7 +13,7 @@
           </li>
           <li><a href="#contact">Contact</a></li>
 
-          <li class="get-started"><a href="https://app.tujuhexpress.com"target="_blank">Web App</a></li>
+          <li class="get-started"><a href="#">Web App</a></li>
         </ul>
       </nav><!-- .nav-menu -->
 
