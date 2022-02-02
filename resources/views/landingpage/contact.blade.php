@@ -11,7 +11,7 @@
           <div class="contact-about">
             <h3>intransitee.id</h3>
             <div class="social-links">
-              <a href="https://www.instagram.com/tujuhxprs/" target="_blank" class="instagram"><i class="icofont-instagram"></i></a>
+              <a href="#" class="instagram"><i class="icofont-instagram"></i></a>
             </div>
           </div>
         </div>
