@@ -10,4 +10,9 @@ class HomeController extends Controller
     {
         return view('landingpage.app');
     }
+
+    public function dashboard()
+    {
+        return view('admin.master.master')->nest('child', 'admin.home');
+    }
 }
