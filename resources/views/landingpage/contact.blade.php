@@ -21,17 +21,19 @@
             <div>
               <i class="ri-map-pin-line"></i>
               {{-- <p>APL Tower Lt 25<br>Jl. Letjen S. Parman Kav. 28<br>Jakarta Barat, 11470</p> --}}
-              <p>Lorem Ipsum is simply dummy text</p>
+              <p>PT Indonesia Transportasi Terarah
+                MTH Square GF A4/A, Jl. Letjen M.T. Haryono No.Kav 10, Bidara Cina, Kec. Jatinegara, Kota Adm. Jakarta Timur,
+                Provinsi DKI Jakarta, Indonesia 13330</p>
             </div>
 
             <div>
               <i class="ri-mail-send-line"></i>
-              <p>Lorem Ipsum is simply dummy text</p>
+              <p>support@intransitee.id</p>
             </div>
 
             <div>
               <i class="ri-phone-line"></i>
-              <p>Lorem Ipsum is simply dummy text</p>
+              <p>021-50106260 ext 509</p>
             </div>
 
           </div>
