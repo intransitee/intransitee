@@ -29,4 +29,5 @@
 
 </body>
     @include('landingpage.script')
+    @include('landingpage.fungsi')
 </html>

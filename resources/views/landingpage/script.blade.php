@@ -13,3 +13,4 @@
 
   <!-- Template Main JS File -->
   <script src="{{asset('landingpage/js/main.js')}}"></script>
+
