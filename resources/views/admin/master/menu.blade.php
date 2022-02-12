@@ -1,3 +1,4 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
       <a href="index.html" class="app-brand-link"></a>
@@ -14,23 +15,23 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
-      <!-- Dashboards -->
-      <li class="menu-item active">
-        <a href="app-calendar.html" class="menu-link">
+    <li class="menu-header small text-uppercase"><span class="menu-header-text">Operational Apps</span></li>
+      <li class="menu-item @if (Request::segment(1) == "dashboard") active @else '' @endif">
+        <a href="javascript:void(0);" onclick="gotoDasboard()" class="menu-link">
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
           <div data-i18n="Dashboards">Dashboards</div>
         </a>
       </li>
 
-      <li class="menu-item">
-        <a href="app-calendar.html" class="menu-link">
+      <li class="menu-item @if (Request::segment(1) == "clients") active @else '' @endif">
+        <a href="javascript:void(0);" onclick="gotoClient()" class="menu-link">
           <i class="menu-icon tf-icons bx bxs-user"></i>
           <div data-i18n="Client">Client</div>
         </a>
       </li>
 
-      <li class="menu-item">
-        <a href="app-calendar.html" class="menu-link">
+      <li class="menu-item @if (Request::segment(1) == "orders") active @else '' @endif">
+        <a href="javascript:void(0);" onclick="gotoOrder()" class="menu-link">
           <i class="menu-icon tf-icons bx bx-send"></i>
           <div data-i18n="Order">Order</div>
         </a>
@@ -38,3 +39,20 @@
 
     </ul>
   </aside>
+
+<script type="text/javascript">
+
+    function gotoClient() {
+        window.location.href = '{{ route('client.client') }}';
+    }
+
+    function gotoDasboard() {
+        window.location.href = '{{ route('dashboard') }}';
+    }
+
+    function gotoOrder() {
+        window.location.href = '{{ route('order.order') }}';
+    }
+
+</script>
+
