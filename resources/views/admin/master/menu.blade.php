@@ -16,28 +16,56 @@
 
     <ul class="menu-inner py-1">
     <li class="menu-header small text-uppercase"><span class="menu-header-text">Operational Apps</span></li>
+    @foreach(session('akses') as $menu)
+    @if($menu->id_menu_function == 1 && $menu->menu_name == 'dashboard')
       <li class="menu-item @if (Request::segment(1) == "dashboard") active @else '' @endif">
         <a href="javascript:void(0);" onclick="gotoDasboard()" class="menu-link">
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
           <div data-i18n="Dashboards">Dashboards</div>
         </a>
       </li>
+    @endif
 
+    @if($menu->id_menu_function == 1 && $menu->menu_name == 'client')
       <li class="menu-item @if (Request::segment(1) == "clients") active @else '' @endif">
         <a href="javascript:void(0);" onclick="gotoClient()" class="menu-link">
           <i class="menu-icon tf-icons bx bxs-user"></i>
           <div data-i18n="Client">Client</div>
         </a>
       </li>
+    @endif
 
+    @if($menu->id_menu_function == 1 && $menu->menu_name == 'order')
       <li class="menu-item @if (Request::segment(1) == "orders") active @else '' @endif">
         <a href="javascript:void(0);" onclick="gotoOrder()" class="menu-link">
           <i class="menu-icon tf-icons bx bx-send"></i>
           <div data-i18n="Order">Order</div>
         </a>
       </li>
+    @endif
 
-    </ul>
+    @if($menu->id_menu_function == 1 && $menu->menu_name == 'user')
+      <li class="menu-header small text-uppercase"><span class="menu-header-text">Admin Area</span></li>
+      <li class="menu-item @if (Request::segment(1) == "users") active @else '' @endif">
+          <a href="javascript:void(0);" onclick="gotoUser()" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-user-check"></i>
+              <div data-i18n="Users">User</div>
+          </a>
+      </li>
+    @endif
+
+
+    @if($menu->id_menu_function == 1 && $menu->menu_name == 'role')
+      <li class="menu-item @if (Request::segment(1) == "roles" || Request::segment(1) == "menus") active @else '' @endif">
+          <a href="javascript:void(0);" onclick="gotoRole()" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-check-shield"></i>
+              <div data-i18n="Role">Roles & Permissions</div>
+          </a>
+      </li>
+    @endif
+    @endforeach
+</ul>
+
   </aside>
 
 <script type="text/javascript">
@@ -52,6 +80,14 @@
 
     function gotoOrder() {
         window.location.href = '{{ route('order.order') }}';
+    }
+
+    function gotoUser() {
+        window.location.href = '{{ route('user.user') }}';
+    }
+
+    function gotoRole() {
+        window.location.href = '{{ route('role.role') }}';
     }
 
 </script>

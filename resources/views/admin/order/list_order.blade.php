@@ -12,12 +12,24 @@
     <div class="card">
         <div>
             <h5 class="card-header" style="float: left">Daftar Order</h5>
-            <button type="button" class="btn btn-primary mt-3" style="float: right; margin-right: 1%"
-                onclick="addOrder()">Add new order</button>
+            @foreach(session('akses') as $menu)
+            @if($menu->id_menu_function == 2 && $menu->menu_name == 'order-add')
+            <button type="button" class="btn btn-primary mt-3" style="float: right; margin-right: 1%" onclick="addOrder()">Add new order</button>
+            @endif
+
+            @if($menu->id_menu_function == 2 && $menu->menu_name == 'order-import')
+            <button type="button" class="btn btn-warning mt-3" style="float: right; margin-right: 1%" data-bs-toggle="modal" data-bs-target="#import">Import CSV</button>
+            @endif
+
+            @if($menu->id_menu_function == 2 && $menu->menu_name == 'order-export')
+            <a href="{{route('order.exportOrder')}}" target="_blank" class="btn btn-success mt-3" style="float: right; margin-right: 1%">Export CSV</a>
+            @endif
+
+            @endforeach
         </div>
 
         <div class="card-datatable table-responsive pt-0 text-nowrap" style="clear: both">
-            <table class="table" id="order">
+            <table class="table" id="order" width="100%">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -29,7 +41,11 @@
                         <th>Delivery date</th>
                         <th>Status</th>
                         <th>Created at</th>
-                        <th>Actions</th>
+                        {{-- @foreach(session('akses') as $menu)
+                            @if($menu->id_menu_function == 2 && $menu->menu_name == 'order-edit' || $menu->id_menu_function == 2 && $menu->menu_name == 'order-delete') --}}
+                                <th>Actions</th>
+                            {{-- @endif
+                        @endforeach --}}
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0" id="bodyOrder">
@@ -40,6 +56,63 @@
     </div>
     <!--/ Basic Bootstrap Table -->
 </div>
+
+{{-- Modal import CSV --}}
+<div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-simple modal-enable-otp modal-dialog-centered">
+      <div class="modal-content p-3 p-md-5">
+        <div class="modal-body">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="text-center mb-4">
+            <h3 class="mb-4">Import Bulk Orders With CSV</h3>
+          </div>
+          <p>This feature will help u to add much order with 1 action</p>
+          <form class="row g-3 mt-3" method="POST" action="{{route('order.importOrder')}}" enctype="multipart/form-data">
+            @csrf
+            <div class="col-12">
+              <label class="form-label" for="modalEnableOTPPhone">Pick CSV files</label>
+              <div class="input-group input-group-merge">
+              <input type="file" name="file" class="form-control" id="csv">
+              </div>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary me-1 me-sm-3">Submit</button>
+              <button
+                type="reset"
+                class="btn btn-label-secondary"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{{asset('sweetalert/sweetalert.min.js')}}"></script>
+{{-- {{dd(Session::has('store'))}} --}}
+@if(Session::has('store'))
+<script type="text/javascript">
+     $.ajax({
+            processing: true,
+            serverSide: true,
+            url: "{{url('/updateLogBulk')}}",
+            type: "post",
+            data: {
+                "_token": "{{ csrf_token() }}",
+            },
+            context: document.body,
+            success: function (data) {
+                var json = data;
+                obj = JSON.parse(json);
+            } //ajax post data
+        });
+    swal("", "Berhasil menambah data order", "success");
+</script>
+@endif
+
 @stop
 @section('fungsi')
 <script type="text/javascript">
@@ -82,8 +155,17 @@
                         <td>${v.created_date}</td>
                         <td>
                             <div class="d-flex">
-                                <a href="javascript:void(0);" onclick=editOrder(${v.id}) class="me-4 action"><i class="bx bx-edit" style='color:#decb20'></i></a>
+                                @foreach(session('akses') as $menu)
+
+                                @if($menu->id_menu_function == 2 && $menu->menu_name == 'order-edit')
+                                    <a href="javascript:void(0);" onclick=editOrder(${v.id}) class="me-4 action"><i class="bx bx-edit" style='color:#decb20'></i></a>
+                                @endif
+
+                                @if($menu->id_menu_function == 2 && $menu->menu_name == 'order-delete')
                                 <a href="javascript:void(0);" onclick=deleted(${v.id}) class="action"><i class="bx bxs-trash-alt" style='color:#fb0303'></i></a>
+                                @endif
+
+                                @endforeach
                             </div>
                         </td>
                       </tr>`;
@@ -91,7 +173,7 @@
 
                 $('#bodyOrder').html(order);
                 $('#order').DataTable({
-                    "scrollY": true,
+                    "scrollX": true,
                 });
 
             } //ajax post data
@@ -128,6 +210,7 @@ swal({
                         showConfirmButton: true
                     }).then(function (isConfirm) {
                         if (isConfirm) {
+                            $('#order').DataTable().destroy();
                             dataOrder();
                         } else {
                             //if no clicked => do something else

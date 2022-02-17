@@ -13,12 +13,16 @@
           </div>
           <div class="card-body">
             <form id="addorder">
+
+                @if (session('role') != 3)
                 <div class="mb-3">
                     <label for="id_client" class="form-label">Client</label>
                     <select class="form-select" id="id_client" aria-label="Default select example">
                       <option selected disabled>Pilih Client</option>
                     </select>
                 </div>
+                @endif
+
                 <div class="mb-3">
                     <label for="id_type" class="form-label">Type</label>
                     <select class="form-select" id="id_type" aria-label="Default select example">
@@ -408,7 +412,7 @@
         console.log(collection_date)
         console.log(delivery_date)
 
-        // $('.validasi').addClass('disabled')
+        $('.validasi').addClass('disabled')
 
         $.ajax({
             type: "POST",

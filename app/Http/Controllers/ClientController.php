@@ -7,6 +7,12 @@ use DB;
 
 class ClientController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('preventBackHistory');
+    }
+
     public function index()
     {
         return view('admin.master.master')->nest('child', 'admin.client.list_client');

@@ -29,9 +29,14 @@ class AuthController extends Controller
                 # code...
                 if (Hash::check($data['password'], $existUser->password)) {
                     // password cocok
+                    $getMenu = DB::table('tb_menu')->where('id_role', $existUser->id_roles)->get();
+
                     $request->session()->put('id', $existUser->id);
                     $request->session()->put('email', $existUser->email);
                     $request->session()->put('username', $existUser->username);
+                    $request->session()->put('client', $existUser->id_client);
+                    $request->session()->put('role', $existUser->id_roles);
+                    $request->session()->put('akses', $getMenu);
 
                     $data_result = array(
                         'status' => true,

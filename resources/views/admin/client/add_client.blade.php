@@ -17,12 +17,14 @@
                 <label class="form-label" for="account_name">Account name</label>
                 <input type="text" class="form-control" id="account_name" placeholder="John Doe" />
               </div>
+
               <div class="mb-3">
                 <label class="form-label" for="client_category">Client category</label>
                 <select class="form-select" id="client_category" aria-label="Default select example">
                     <option selected disabled>Pilih Client Category</option>
                   </select>
               </div>
+
               <div class="mb-3">
                 <label class="form-label" for="pic_email">Pic email</label>
                 <input type="text" class="form-control" id="pic_email" placeholder="xyz@gmail.com" />

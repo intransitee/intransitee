@@ -13,8 +13,11 @@
     <div class="card">
         <div>
             <h5 class="card-header" style="float: left">Daftar Client</h5>
-            <button type="button" class="btn btn-primary mt-3" style="float: right; margin-right: 1%"
-                onclick="addClient()">Add new client</button>
+            @foreach(session('akses') as $menu)
+                @if($menu->id_menu_function == 2 && $menu->menu_name == 'client-add')
+                    <button type="button" class="btn btn-primary mt-3" style="float: right; margin-right: 1%" onclick="addClient()">Add new client</button>
+                @endif
+            @endforeach
         </div>
 
         <div class="card-datatable table-responsive pt-0 text-nowrap" style="clear: both">
@@ -29,7 +32,11 @@
                         <th>Sales agent</th>
                         <th>Cod fee</th>
                         <th>Insurance fee</th>
+                        {{-- @foreach(session('akses') as $menu)
+                        @if($menu->id_menu_function == 2 && $menu->menu_name == 'client-edit' || $menu->id_menu_function == 2 && $menu->menu_name == 'client-delete') --}}
                         <th>Actions</th>
+                        {{-- @endif
+                        @endforeach --}}
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0" id="bodyClient">
@@ -76,18 +83,29 @@
                         <td>${v.sales_agent}</td>
                         <td>${v.cod_fee}%</td>
                         <td>${v.insurance_fee}%</td>
+
                         <td>
                             <div class="d-flex">
+                                @foreach(session('akses') as $menu)
+
+                                @if($menu->id_menu_function == 2 && $menu->menu_name == 'client-edit')
                                 <a href="javascript:void(0);" onclick=editClient(${v.id}) class="me-4 action"><i class="bx bx-edit" style='color:#decb20'></i></a>
+                                @endif
+
+                                @if($menu->id_menu_function == 2 && $menu->menu_name == 'client-delete')
                                 <a href="javascript:void(0);" onclick=deleted(${v.id}) class="action"><i class="bx bxs-trash-alt" style='color:#fb0303'></i></a>
+                                @endif
+
+                                @endforeach
                             </div>
                         </td>
+
                       </tr>`;
                 });
 
                 $('#bodyClient').html(client);
                 $('#client').DataTable({
-                    "scrollY": true,
+                    "scrollX": true,
                 });
 
             } //ajax post data
@@ -128,6 +146,7 @@
                             showConfirmButton: true
                         }).then(function (isConfirm) {
                             if (isConfirm) {
+                                $('#client').DataTable().destroy();
                                 dataClient();
                             } else {
                                 //if no clicked => do something else

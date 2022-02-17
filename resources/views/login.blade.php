@@ -68,19 +68,22 @@ data-template="vertical-menu-template"
         <!-- /Left Text -->
         <div class="d-none d-lg-flex col-lg-7 col-xl-8 align-items-center">
           <div class="flex-row text-center mx-auto">
-            <img
+            {{-- <img
               src="{{asset('admin/assets/img/pages/login-light.png')}}"
               alt="Auth Cover Bg color"
               width="520"
               class="img-fluid authentication-cover-img"
               data-app-light-img="{{asset('admin/assets/img/pages/login-light.png')}}"
               data-app-dark-img="{{asset('admin/assets/img/pages/login-dark.png')}}"
-            />
+            /> --}}
+            <img src="{{asset('logo/Logo2.png')}}" alt="Auth Cover Bg color" width="200" class="img-fluid authentication-cover-img"
+            data-app-light-img="{{asset('admin/assets/img/pages/login-light.png')}}"
+              data-app-dark-img="{{asset('admin/assets/img/pages/login-dark.png')}}">
             <div class="mx-auto">
-              <h3>Discover the powerful admin template 🥳</h3>
+              <h3>Think of City Courier Think of intransitee.id</h3>
               <p>
-                Perfectly suited for all level of developers which helps you to <br />
-                kick start your next big projects & Applications.
+                We Help Your Business stand out in the market and conquer your buyers heart with any customize solution<br />
+                To ensure that we build a simple and useful Delivery service in Indonesia
               </p>
             </div>
           </div>
@@ -97,8 +100,8 @@ data-template="vertical-menu-template"
               </a>
             </div>
             <!-- /Logo -->
-            <h4 class="mb-2">Welcome to Frest! 👋</h4>
-            <p class="mb-4">Please sign-in to your account and start the adventure</p>
+            {{-- <h4 class="mb-2">Welcome to Frest! 👋</h4> --}}
+            <p class="mb-4">Please sign-in to your account.</p>
 
             <form id="login" class="mb-3" method="POST">
               <div class="mb-3">
@@ -133,14 +136,14 @@ data-template="vertical-menu-template"
               </div>
               <div class="mb-3">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="remember-me" />
+                  <input class="form-check-input" type="checkbox" id="remember-me" checked/>
                   <label class="form-check-label" for="remember-me"> Remember Me </label>
                 </div>
               </div>
               <button type="button" class="btn btn-primary d-grid w-100 validasi" onclick="login()">Sign in</button>
             </form>
 
-            <p class="text-center">
+            {{-- <p class="text-center">
               <span>New on our platform?</span>
               <a href="auth-register-cover.html">
                 <span>Create an account</span>
@@ -163,7 +166,7 @@ data-template="vertical-menu-template"
               <a href="javascript:;" class="btn btn-icon btn-label-twitter">
                 <i class="tf-icons bx bxl-twitter"></i>
               </a>
-            </div>
+            </div> --}}
           </div>
         </div>
         <!-- /Login -->

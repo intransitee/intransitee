@@ -2,11 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\OrdersExport;
 use Illuminate\Http\Request;
 use DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Orders;
+use App\Imports\ImportOrder;
 
 class OrderController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('preventBackHistory');
+    }
+
     public function index()
     {
         return view('admin.master.master')->nest('child', 'admin.order.list_order');
@@ -33,17 +43,30 @@ class OrderController extends Controller
             $number = str_pad($res, 3, "0", STR_PAD_LEFT);
         } elseif ($res > 9 && $res < 100) {
             # code...
-            $number = str_pad($res, 2, "0", STR_PAD_LEFT);
+            $number = str_pad($res, 3, "0", STR_PAD_LEFT);
         } else {
-            $number = str_pad($res, 1, "0", STR_PAD_LEFT);
+            $number = str_pad($res, 3, "0", STR_PAD_LEFT);
         }
 
         $generateawb = 'IN' . date("Y-m-d") . $number;
         $awb = str_replace('-', '', $generateawb);
 
+        $ship_temp_area = DB::table('reff_area')->where('id_area', $request->shipper_area)->first();
+        $ship_temp_district = DB::table('reff_area')->where('id_district', $request->shipper_district)->first();
+
+        $recip_temp_area = DB::table('reff_area')->where('id_area', $request->recipient_area)->first();
+        $recip_temp_district = DB::table('reff_area')->where('id_district', $request->recipient_district)->first();
+
+        if (session('role') == 3) {
+            # code...
+            $client = session('client');
+        } else {
+            $client = $request->id_client;
+        }
+
         $data = array(
             'awb' => $awb,
-            'id_client' => $request->id_client,
+            'id_client' => $client,
             'id_type' => $request->id_type,
             "id_service" => $request->id_service,
             "shipper_name" => $request->shipper_name,
@@ -51,13 +74,17 @@ class OrderController extends Controller
             "shipper_address" => $request->shipper_address,
             "shipper_zipcode" => $request->shipper_zipcode,
             "shipper_area" => $request->shipper_area,
+            "shipper_temp_area" => $ship_temp_area->area,
             "shipper_district" => $request->shipper_district,
+            "shipper_temp_district" => $ship_temp_district->district,
             "recipient_name" => $request->recipient_name,
             "recipient_phone" => $request->recipient_phone,
             "recipient_address" => $request->recipient_address,
             "recipient_zip_code" => $request->recipient_zipcode,
             "recipient_area" => $request->recipient_area,
+            "recipient_temp_area" => $recip_temp_area->area,
             "recipient_district" => $request->recipient_district,
+            "recipient_temp_district" => $recip_temp_district->district,
             "weight" => $request->weight,
             "value_of_goods" => $request->value_of_goods,
             "id_status" => 1,
@@ -68,6 +95,7 @@ class OrderController extends Controller
             "total_fee" => $request->total_fee,
             "collection_scheduled_date" => $request->collection_date,
             "delivery_scheduled_date" => $request->delivery_date,
+            "bulk_log_status" => 1
         );
 
         $insert = DB::table('tb_order')->insert($data);
@@ -104,8 +132,11 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request)
     {
+        $update_time = date('Y/m/d h:i:s', time());
+
         $data = array(
             "id_status" => $request->id_status,
+            "last_updated" => $update_time
         );
 
         $update = DB::table('tb_order')->where('id', $request->id_order)->update($data);
@@ -143,13 +174,28 @@ class OrderController extends Controller
     public function getOrder()
     {
 
-        $order = DB::table('tb_order')
-            ->select('tb_order.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'reff_status.warna')
-            ->join('tb_client', 'tb_client.id', '=', 'tb_order.id_client')
-            ->join('reff_type', 'reff_type.id', '=', 'tb_order.id_type')
-            ->join('reff_service', 'reff_service.id', '=', 'tb_order.id_service')
-            ->join('reff_status', 'reff_status.id', '=', 'tb_order.id_status')
-            ->get()->toArray();
+        if (session('role') != 3) {
+            # code...
+            $order = DB::table('tb_order')
+                ->select('tb_order.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'reff_status.warna')
+                ->join('tb_client', 'tb_client.id', '=', 'tb_order.id_client')
+                ->join('reff_type', 'reff_type.id', '=', 'tb_order.id_type')
+                ->join('reff_service', 'reff_service.id', '=', 'tb_order.id_service')
+                ->join('reff_status', 'reff_status.id', '=', 'tb_order.id_status')
+                ->orderBy('id', 'DESC')
+                ->get()->toArray();
+        } else {
+            $order = DB::table('tb_order')
+                ->select('tb_order.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'reff_status.warna')
+                ->join('tb_client', 'tb_client.id', '=', 'tb_order.id_client')
+                ->join('reff_type', 'reff_type.id', '=', 'tb_order.id_type')
+                ->join('reff_service', 'reff_service.id', '=', 'tb_order.id_service')
+                ->join('reff_status', 'reff_status.id', '=', 'tb_order.id_status')
+                ->where('id_client', session('client'))
+                ->orderBy('id', 'DESC')
+                ->get()->toArray();
+        }
+
 
         foreach ($order as $key => $value) {
             # code...
@@ -211,10 +257,9 @@ class OrderController extends Controller
             ->join('reff_status', 'reff_status.id', '=', 'reff_order_logs.id_status')
             ->where('id_order', $request->id)->get()->toArray();
 
-        foreach ($getLog as $key => $value) {
-            # code...
-            $getLog[$key]->created_at = tanggal_local(date("Y-m-d", strtotime($value->created_at)));
-        }
+        // foreach ($getLog as $key => $value) {
+        //     $getLog[$key]->created_at = tanggal_local(date("Y-m-d", strtotime($value->created_at)));
+        // }
 
         if ($order) {
             # code...
@@ -283,6 +328,65 @@ class OrderController extends Controller
             return json_encode($data_result);
         }
     }
+
+    public function export()
+    {
+        return Excel::download(new Orders, rand() . 'export-order.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $file = $request->file('file');
+        // dd($file);
+        $nama_file = rand() . $file->getClientOriginalName();
+        $file->move('import', $nama_file);
+
+        Excel::import(new ImportOrder, public_path('/import/' . $nama_file));
+
+        return redirect()->route('order.order')->with('store', 'Berhasil tambah order');
+    }
+
+    public function updateLogBulk()
+    {
+        $check = DB::table('tb_order')->where('bulk_log_status', 0)->get();
+
+        foreach ($check as $key => $value) {
+            # code...
+            $data = array(
+                'id_order' => $value->id,
+                'id_status' => 1,
+                'deskripsi' => session('username') . " membuat data order baru",
+                'id_user' => session('id'),
+            );
+
+            $logging = DB::table('reff_order_logs')->insert($data);
+
+            //Update bulk log
+            $bulkUpdate = array(
+                'bulk_log_status' => 1
+            );
+
+            $udpate = DB::table('tb_order')->where('id', $value->id)->update($bulkUpdate);
+        }
+
+        if ($check) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil update logs",
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal update logs"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
     public function reffClient()
     {
 
