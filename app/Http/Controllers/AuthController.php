@@ -38,6 +38,13 @@ class AuthController extends Controller
                     $request->session()->put('role', $existUser->id_roles);
                     $request->session()->put('akses', $getMenu);
 
+
+                    // Updated last login
+                    date_default_timezone_set('Asia/Jakarta');
+                    $update_time = date('Y/m/d h:i:s', time());
+
+                    $update_last_login = DB::table('tb_user')->where('id', $existUser->id)->update(['last_login' => $update_time]);
+
                     $data_result = array(
                         'status' => true,
                         'message' => "Berhasil login"

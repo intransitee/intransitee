@@ -13,6 +13,10 @@
           </div>
           <div class="card-body">
             <form id="addorder">
+                <div class="mb-3">
+                    <label for="reff_id" class="form-label">Reff id</label>
+                    <input type="text" class="form-control" id="reff_id">
+                </div>
 
                 @if (session('role') != 3)
                 <div class="mb-3">
@@ -362,6 +366,7 @@
    }
 
     function addOrder(params) {
+        var	reff_id = $('#reff_id').val();
         var	id_client = $('#id_client').val();
         var	id_type = $('#id_type').val();
         var	id_service = $('#id_service').val();
@@ -419,6 +424,7 @@
             url: "{{url('/orders/insert')}}",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             data: {
+                reff_id:reff_id,
                 id_client:id_client,
                 id_type:id_type,
                 id_service:id_service,

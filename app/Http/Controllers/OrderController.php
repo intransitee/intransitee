@@ -8,6 +8,7 @@ use DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\Orders;
 use App\Imports\ImportOrder;
+use App\Imports\UpdateOrder;
 
 class OrderController extends Controller
 {
@@ -66,6 +67,7 @@ class OrderController extends Controller
 
         $data = array(
             'awb' => $awb,
+            'reff_id' => $request->reff_id,
             'id_client' => $client,
             'id_type' => $request->id_type,
             "id_service" => $request->id_service,
@@ -132,7 +134,40 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request)
     {
+        date_default_timezone_set('Asia/Jakarta');
         $update_time = date('Y/m/d h:i:s', time());
+
+        if ($request->id_status == 2) {
+            # code...
+            $update_order = array(
+                'pending_date' => $update_time
+            );
+        } elseif ($request->id_status == 3) {
+            # code...
+            $update_order = array(
+                'in_transit_date' => $update_time
+            );
+        } elseif ($request->id_status == 4) {
+            # code...
+            $update_order = array(
+                'completed_date' => $update_time
+            );
+        } elseif ($request->id_status == 8) {
+            # code...
+            $update_order = array(
+                'fail_attempt_1_date' => $update_time
+            );
+        } elseif ($request->id_status == 5 || $request->id_status == 6 || $request->id_status == 7) {
+            # code...
+            $update_order = array(
+                'fail_date' => $update_time
+            );
+        } elseif ($request->id_status == 9) {
+            # code...
+            $update_order = array(
+                'cancelled_date' => $update_time
+            );
+        }
 
         $data = array(
             "id_status" => $request->id_status,
@@ -143,6 +178,8 @@ class OrderController extends Controller
 
         if ($update) {
             # code...
+            // update status yang di tb order
+            $update = DB::table('tb_order')->where('id', $request->id_order)->update($update_order);
 
             // update log
             $data_log = array(
@@ -336,14 +373,74 @@ class OrderController extends Controller
 
     public function import(Request $request)
     {
-        $file = $request->file('file');
-        // dd($file);
-        $nama_file = rand() . $file->getClientOriginalName();
-        $file->move('import', $nama_file);
+        if ($request->flag == 1) {
+            # code...
+            $file = $request->file('file');
+            $nama_file = rand() . $file->getClientOriginalName();
+            $file->move('import', $nama_file);
 
-        Excel::import(new ImportOrder, public_path('/import/' . $nama_file));
+            Excel::import(new ImportOrder, public_path('/import/' . $nama_file));
 
-        return redirect()->route('order.order')->with('store', 'Berhasil tambah order');
+            return redirect()->route('order.order')->with('store', 'Berhasil tambah order');
+        } else {
+            $file = $request->file('file');
+            $nama_file = rand() . $file->getClientOriginalName();
+            $file->move('import', $nama_file);
+
+            $data = Excel::toArray(new UpdateOrder, public_path('/import/' . $nama_file));
+            // dd($data);
+            $bulk = [];
+            $c = collect(head($data));
+
+            foreach ($c as $key => $value) {
+
+                $ship_temp_area = DB::table('reff_area')->where('id_area', $value[8])->first();
+                $ship_temp_district = DB::table('reff_area')->where('id_district', $value[9])->first();
+
+                $recip_temp_area = DB::table('reff_area')->where('id_area', $value[14])->first();
+                $recip_temp_district = DB::table('reff_area')->where('id_district', $value[15])->first();
+
+                $bulk[] = array(
+                    'awb' => $value[0],
+                    'id_client' => $value[1],
+                    'id_type' => $value[2],
+                    "id_service" => $value[3],
+                    "shipper_name" => $value[4],
+                    "shipper_phone" => $value[5],
+                    "shipper_address" => $value[6],
+                    "shipper_zipcode" => $value[7],
+                    "shipper_area" => $value[8],
+                    "shipper_temp_area" => $ship_temp_area->area,
+                    "shipper_district" => $value[9],
+                    "shipper_temp_district" => $ship_temp_district->district,
+                    "recipient_name" => $value[10],
+                    "recipient_phone" => $value[11],
+                    "recipient_address" => $value[12],
+                    "recipient_zip_code" => $value[13],
+                    "recipient_area" => $value[14],
+                    "recipient_temp_area" => $recip_temp_area->area,
+                    "recipient_district" => $value[15],
+                    "recipient_temp_district" => $recip_temp_district->district,
+                    "weight" => $value[16],
+                    "value_of_goods" => $value[17],
+                    "is_insured" => $value[18],
+                    "is_cod" => $value[19],
+                    "insurance_fee" => $value[20],
+                    "cod_fee" => $value[21],
+                    "total_fee" => $value[22],
+                    "collection_scheduled_date" => $value[23],
+                    "delivery_scheduled_date" => $value[24],
+                    "reff_id" => $value[25]
+                );
+                # code...
+            }
+
+            foreach ($bulk as $num => $item) {
+                $update = DB::table('tb_order')->where('awb', $item['awb'])->update($item);
+            }
+
+            return redirect()->route('order.order')->with('update', 'Berhasil ubah order');
+        }
     }
 
     public function updateLogBulk()

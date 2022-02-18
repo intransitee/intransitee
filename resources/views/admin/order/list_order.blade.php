@@ -63,30 +63,111 @@
       <div class="modal-content p-3 p-md-5">
         <div class="modal-body">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          <div class="text-center mb-4">
-            <h3 class="mb-4">Import Bulk Orders With CSV</h3>
-          </div>
-          <p>This feature will help u to add much order with 1 action</p>
-          <form class="row g-3 mt-3" method="POST" action="{{route('order.importOrder')}}" enctype="multipart/form-data">
-            @csrf
-            <div class="col-12">
-              <label class="form-label" for="modalEnableOTPPhone">Pick CSV files</label>
-              <div class="input-group input-group-merge">
-              <input type="file" name="file" class="form-control" id="csv">
+          <div class="col-12" id="optionnya">
+            <div class="row">
+              <div class="col-md mb-3 mb-md-2">
+                <div class="form-check custom-option custom-option-icon">
+                  <label class="form-check-label custom-option-content" for="customRadioHome" onclick="pilihaksi(1)">
+                    <span class="custom-option-body">
+                      <i class="bx bx-home"></i>
+                      <span class="custom-option-title my-2">Add Bulk Order</span>
+                      <span> Add new order with scv/excel files </span>
+                    </span>
+                    <input
+                      name="customRadioIcon"
+                      class="form-check-input"
+                      type="radio"
+                      value=""
+                      id="customRadioHome"
+                      checked
+                    />
+                  </label>
+                </div>
+              </div>
+              <div class="col-md mb-3 mb-md-2">
+                <div class="form-check custom-option custom-option-icon">
+                  <label class="form-check-label custom-option-content" for="customRadioOffice" onclick="pilihaksi(2)">
+                    <span class="custom-option-body">
+                      <i class="bx bx-briefcase"></i>
+                      <span class="custom-option-title my-2"> Edit Bulk Order </span>
+                      <span> Edit new order with scv/excel files </span>
+                    </span>
+                    <input
+                      name="customRadioIcon"
+                      class="form-check-input"
+                      type="radio"
+                      value=""
+                      id="customRadioOffice"
+                    />
+                  </label>
+                </div>
               </div>
             </div>
-            <div class="col-12">
-              <button type="submit" class="btn btn-primary me-1 me-sm-3">Submit</button>
-              <button
-                type="reset"
-                class="btn btn-label-secondary"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+          </div>
+          <div id="addOrder" style="display: none">
+              <div class="text-center mb-4">
+                <h3 class="mb-4">Import Bulk Orders With CSV</h3>
+              </div>
+              <p>This feature will help u to add much order with 1 action</p>
+              <form class="row g-3 mt-3" method="POST" action="{{route('order.importOrder')}}" enctype="multipart/form-data">
+                @csrf
+              <div class="col-12">
+                  <label class="form-label" for="modalEnableOTPPhone">Pick CSV files to add new bulk order</label>
+                  <div class="input-group input-group-merge">
+                  <input type="file" name="file" class="form-control" id="csv" required>
+                  <input type="hidden" name="flag" value="1">
+                  </div>
+                </div>
+                <div class="col-4">
+                    <button type="submit" class="btn btn-primary me-1 me-sm-3">Submit</button>
+                  </div>
+                  <div class="col-4">
+                      <button
+                      type="reset"
+                      class="btn btn-label-secondary"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  <div class="col-4">
+                      <button type="button" class="btn btn-warning" id="backOption" onclick=back()>Option</button>
+                  </div>
+              </form>
+          </div>
+          <div id="editOrder" style="display: none">
+              <div class="text-center mb-4">
+                <h3 class="mb-4">Import Bulk Orders With CSV to edit order</h3>
+              </div>
+              <p>This feature will help u to edit much order with 1 action</p>
+              <form class="row g-3 mt-3" method="POST" action="{{route('order.importOrder')}}" enctype="multipart/form-data">
+                @csrf
+              <div class="col-12">
+                  <label class="form-label" for="modalEnableOTPPhone">Pick CSV files to edit bulk order</label>
+                  <div class="input-group input-group-merge">
+                  <input type="file" name="file" class="form-control" id="csv" required>
+                  <input type="hidden" name="flag" value="2">
+                  </div>
+                </div>
+                <div class="col-4">
+                  <button type="submit" class="btn btn-primary me-1 me-sm-3">Submit</button>
+                </div>
+                <div class="col-4">
+                    <button
+                    type="reset"
+                    class="btn btn-label-secondary"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                <div class="col-4">
+                    <button type="button" class="btn btn-warning" id="backOption" onclick=back()>Option</button>
+                </div>
+              </form>
+          </div>
         </div>
       </div>
     </div>
@@ -113,12 +194,39 @@
 </script>
 @endif
 
+@if(Session::has('update'))
+<script type="text/javascript">
+    swal("", "Berhasil ubah data order", "success");
+</script>
+@endif
+
 @stop
 @section('fungsi')
 <script type="text/javascript">
     $(document).ready(function () {
         dataOrder();
     });
+
+    function back() {
+        $('#addOrder').hide();
+        $('#editOrder').hide();
+        $('#optionnya').show();
+    }
+
+    function pilihaksi(params) {
+        console.log('masuk')
+        console.log(params)
+
+        if (params == 1) {
+            $('#addOrder').show();
+            $('#editOrder').hide();
+            $('#optionnya').hide();
+        }else{
+            $('#editOrder').show();
+            $('#addOrder').hide();
+            $('#optionnya').hide();
+        }
+    }
 
     function addOrder(params) {
         window.location.href = '{{ route('order.add') }}';
