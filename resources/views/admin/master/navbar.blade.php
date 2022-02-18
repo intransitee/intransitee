@@ -305,7 +305,7 @@
                 <div class="dropdown-divider"></div>
               </li>
               <li>
-                <a class="dropdown-item" href="auth-login-cover.html" target="_blank">
+                <a class="dropdown-item" href="javascript:void(0);" onclick="logOut()">
                   <i class="bx bx-power-off me-2"></i>
                   <span class="align-middle">Log Out</span>
                 </a>
@@ -328,3 +328,10 @@
       </div>
     </div>
   </nav>
+
+  <script type="text/javascript">
+
+    function logOut() {
+        window.location.href = '{{ route('logout') }}';
+    }
+</script>

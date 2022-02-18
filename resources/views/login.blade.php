@@ -173,6 +173,14 @@ data-template="vertical-menu-template"
       </div>
     </div>
 
+    <script src="{{asset('sweetalert/sweetalert.min.js')}}"></script>
+
+    @if(Session::has('logout'))
+        <script type="text/javascript">
+            swal("", "Berhasil logout", "success");
+        </script>
+    @endif
+
     <script type="text/javascript">
         function login(item){
         var	email = $('#email').val();
@@ -197,7 +205,7 @@ data-template="vertical-menu-template"
             if (obj.status == true) {
                 $("#login")[0].reset();
                 $('.validasi').removeClass('disabled')
-                window.location.href = '{{ route('dashboard') }}';
+                window.location.href = '{{ route('order.order') }}';
             } else {
                 $("#login")[0].reset();
                 $('.validasi').removeClass('disabled')

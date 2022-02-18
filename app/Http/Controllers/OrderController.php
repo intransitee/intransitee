@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\Orders;
 use App\Imports\ImportOrder;
 use App\Imports\UpdateOrder;
+use Session;
 
 class OrderController extends Controller
 {
@@ -368,7 +369,14 @@ class OrderController extends Controller
 
     public function export()
     {
-        return Excel::download(new Orders, rand() . 'export-order.xlsx');
+        $check = DB::table('tb_order')->count();
+
+        if ($check < 1) {
+            # code...
+            return redirect()->route('order.order')->with('no_order', 'Data order tidak ada');
+        } else {
+            return Excel::download(new Orders, rand() . 'export-order.xlsx');
+        }
     }
 
     public function import(Request $request)

@@ -22,7 +22,7 @@
             @endif
 
             @if($menu->id_menu_function == 2 && $menu->menu_name == 'order-export')
-            <a href="{{route('order.exportOrder')}}" target="_blank" class="btn btn-success mt-3" style="float: right; margin-right: 1%">Export CSV</a>
+            <a href="{{route('order.exportOrder')}}" class="btn btn-success mt-3" style="float: right; margin-right: 1%">Export CSV</a>
             @endif
 
             @endforeach
@@ -69,7 +69,7 @@
                 <div class="form-check custom-option custom-option-icon">
                   <label class="form-check-label custom-option-content" for="customRadioHome" onclick="pilihaksi(1)">
                     <span class="custom-option-body">
-                      <i class="bx bx-home"></i>
+                      <i class="bx bx-plus"></i>
                       <span class="custom-option-title my-2">Add Bulk Order</span>
                       <span> Add new order with scv/excel files </span>
                     </span>
@@ -88,7 +88,7 @@
                 <div class="form-check custom-option custom-option-icon">
                   <label class="form-check-label custom-option-content" for="customRadioOffice" onclick="pilihaksi(2)">
                     <span class="custom-option-body">
-                      <i class="bx bx-briefcase"></i>
+                      <i class="bx bx-edit"></i>
                       <span class="custom-option-title my-2"> Edit Bulk Order </span>
                       <span> Edit new order with scv/excel files </span>
                     </span>
@@ -197,6 +197,12 @@
 @if(Session::has('update'))
 <script type="text/javascript">
     swal("", "Berhasil ubah data order", "success");
+</script>
+@endif
+
+@if(Session::has('no_order'))
+<script type="text/javascript">
+    swal("", "Belum ada data order", "error");
 </script>
 @endif
 

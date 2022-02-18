@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use DB;
+use Session;
 
 class AuthController extends Controller
 {
@@ -74,5 +75,17 @@ class AuthController extends Controller
             //$bad_response = $this->responseData($e->getCode(), $response);
             return json_encode($response);
         }
+    }
+
+    public function logout()
+    {
+        Session::forget('id');
+        Session::forget('email');
+        Session::forget('username');
+        Session::forget('client');
+        Session::forget('role');
+        Session::forget('akses');
+
+        return redirect('/login')->with('logout', 'Berhasil Logout');
     }
 }
