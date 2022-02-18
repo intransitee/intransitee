@@ -83,7 +83,7 @@ data-template="vertical-menu-template"
               <h3>Think of City Courier Think of intransitee.id</h3>
               <p>
                 We Help Your Business stand out in the market and conquer your buyers heart with any customize solution<br />
-                To ensure that we build a simple and useful Delivery service in Indonesia
+                To ensure that we build a simple and useful Delivery service in Indonesia.
               </p>
             </div>
           </div>
