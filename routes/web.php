@@ -42,6 +42,8 @@ Route::group(['prefix' => 'orders', 'as' => 'order.'], function () {
     Route::post('/importOrder', 'OrderController@import')->name('importOrder');
     Route::get('/getDetail', 'OrderController@getDetail')->name('getDetail');
     Route::get('/detail/{id}', 'OrderController@detail')->name('detail');
+    Route::get('/calculate_cod_fee', 'OrderController@calculate_cod_fee')->name('calculate_cod_fee');
+    Route::get('/calculate_insurance_fee', 'OrderController@calculate_insurance_fee')->name('calculate_insurance_fee');
     Route::post('/insert', 'OrderController@insert')->name('insert');
     Route::post('/delete', 'OrderController@delete')->name('delete');
     Route::post('/updateStatus', 'OrderController@updateStatus')->name('updateStatus');
@@ -83,12 +85,32 @@ Route::group(['prefix' => 'menus', 'as' => 'menu.'], function () {
     Route::post('/delete', 'MenuController@delete')->name('delete');
 });
 
+Route::group(['prefix' => 'pricings', 'as' => 'pricing.'], function () {
+    Route::get('/list_pricing', 'PricingController@list_pricing')->name('list_pricing');
+    Route::get('/get-pricing', 'PricingController@get_pricing')->name('get-pricing');
+    Route::get('/add/{id_client}', 'PricingController@add')->name('add');
+    Route::get('/editPrice/{id}', 'PricingController@editPrice')->name('editPrice');
+    Route::get('/get_edit_detail/{id}', 'PricingController@get_edit_detail')->name('get_edit_detail');
+    Route::get('/exportPricing/{idclient}', 'PricingController@exportPricing')->name('exportPricing');
+    Route::post('/importPricing', 'PricingController@importPricing')->name('importPricing');
+    Route::post('/insert', 'PricingController@insert')->name('insert');
+    Route::post('/update', 'PricingController@update')->name('update');
+    Route::post('/delete', 'PricingController@delete')->name('delete');
+});
+
+
+// Reff Order
+Route::get('/zipcodeOrder', 'OrderController@zipcodeOrder')->name('zipcodeOrder');
 
 // Reff
 Route::get('/reffClient', 'OrderController@reffClient')->name('reffClient');
 Route::get('/reffService', 'OrderController@reffService')->name('reffService');
 Route::get('/reffZipcode', 'OrderController@reffZipcode')->name('reffZipcode');
 Route::get('/getArea', 'OrderController@getArea')->name('getArea');
+Route::get('/getAreaByProvince/{province}/{zipcode}', 'OrderController@getAreaByProvince')->name('getAreaByProvince');
+Route::get('/getDistrictByArea/{zipcode}/{province}/{area}', 'OrderController@getDistrictByArea')->name('getDistrictByArea');
+Route::get('/getSubDistrictByArea/{zipcode}/{province}/{area}/{district}', 'OrderController@getSubDistrictByArea')->name('getSubDistrictByArea');
+Route::get('/getProvince/{zipcode}', 'OrderController@getProvince')->name('getProvince');
 Route::get('/getDistrict', 'OrderController@getDistrict')->name('getDistrict');
 Route::get('/getStatus', 'OrderController@getStatus')->name('getStatus');
 Route::get('/getType', 'OrderController@getType')->name('getType');

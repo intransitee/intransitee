@@ -88,6 +88,7 @@ class OrderController extends Controller
             "recipient_temp_area" => $recip_temp_area->area,
             "recipient_district" => $request->recipient_district,
             "recipient_temp_district" => $recip_temp_district->district,
+            "delivery_fee" => $request->delivery_fee,
             "weight" => $request->weight,
             "value_of_goods" => $request->value_of_goods,
             "id_status" => 1,
@@ -564,6 +565,31 @@ class OrderController extends Controller
         }
     }
 
+    public function zipcodeOrder(Request $request)
+    {
+        $area = DB::table('tb_pricing')
+            ->join('reff_area', 'reff_area.id', '=', 'tb_pricing.id_area')
+            ->where('id_client', $request->client)->get()->toArray();
+
+        if ($area) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil area",
+                'data' => $area
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil area"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
     public function getArea(Request $request)
     {
         $area = DB::table('reff_area')->select('id_area', 'area')->where('postal_code', $request->zipcode)->groupBy('id_area', 'area')->get()->toArray();
@@ -581,6 +607,101 @@ class OrderController extends Controller
             $data_result = array(
                 'status' => false,
                 'message' => "Gagal ambil area"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function getAreaByProvince(Request $request, $Prov, $zipcode)
+    {
+        // dd($Prov);
+        $area = DB::table('reff_area')->select('id_area', 'area')->where('id_province', $Prov)->where('postal_code', $zipcode)->groupBy('id_area', 'area')->get()->toArray();
+
+        if ($area) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil area",
+                'data' => $area
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil area"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function getDistrictByArea(Request $request, $zipcode, $prov, $area)
+    {
+        // dd($Prov);
+        $district = DB::table('reff_area')->select('id_district', 'district')->where('postal_code', $zipcode)->where('id_province', $prov)->where('id_area', $area)->groupBy('id_district', 'district')->get()->toArray();
+
+        if ($district) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil district",
+                'data' => $district
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil district"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function getSubDistrictByArea(Request $request, $zipcode, $prov, $area, $district)
+    {
+        // dd($Prov);
+        $subdistrict = DB::table('reff_area')->select('id_subdistrict', 'subdistrict')->where('postal_code', $zipcode)->where('id_province', $prov)->where('id_area', $area)->where('id_district', $district)->groupBy('id_subdistrict', 'subdistrict')->get()->toArray();
+
+        if ($subdistrict) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil subdistrict",
+                'data' => $subdistrict
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil subdistrict"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function getProvince(Request $request, $zipcode)
+    {
+        $province = DB::table('reff_area')->select('id_province', 'province')->where('postal_code', $zipcode)->groupBy('id_province', 'province')->get()->toArray();
+
+        if ($province) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil province",
+                'data' => $province
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil province"
             );
 
             return json_encode($data_result);
@@ -627,6 +748,70 @@ class OrderController extends Controller
             $data_result = array(
                 'status' => false,
                 'message' => "Gagal ambil district"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function calculate_cod_fee(Request $request)
+    {
+        if ($request->is_cod == 1) {
+            # code...
+            $client = DB::table('tb_client')->where('id', session('client'))->first();
+            if ($client) {
+                # code...
+                $data_result = array(
+                    'status' => true,
+                    'message' => "Berhasil ambil district",
+                    'data' => $client
+                );
+
+                return json_encode($data_result);
+            } else {
+                $data_result = array(
+                    'status' => false,
+                    'message' => "Gagal ambil district"
+                );
+
+                return json_encode($data_result);
+            }
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "No Cod"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function calculate_insurance_fee(Request $request)
+    {
+        if ($request->insurance == 1) {
+            # code...
+            $client = DB::table('tb_client')->where('id', session('client'))->first();
+            if ($client) {
+                # code...
+                $data_result = array(
+                    'status' => true,
+                    'message' => "Berhasil ambil district",
+                    'data' => $client
+                );
+
+                return json_encode($data_result);
+            } else {
+                $data_result = array(
+                    'status' => false,
+                    'message' => "Gagal ambil district"
+                );
+
+                return json_encode($data_result);
+            }
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "No Cod"
             );
 
             return json_encode($data_result);
