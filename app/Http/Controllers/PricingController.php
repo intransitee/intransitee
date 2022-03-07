@@ -34,14 +34,17 @@ class PricingController extends Controller
 
     public function insert(Request $request)
     {
-        $area = DB::table('reff_area')->select('id', 'pricing')->where('postal_code', $request->zipcode)->where('id_province', $request->province)->where('id_area', $request->area)->where('id_district', $request->district)->where('id_subdistrict', $request->subdistrict)->first();
 
         $data = array(
             'id_client' => $request->client,
-            'id_area' => $area->id,
             'id_service' => $request->service,
             'id_type' => $request->type,
-            'price' => (int)$area->pricing,
+            'id_provinsi' => $request->province,
+            'id_kota' => $request->kota,
+            'id_kecamatan' => $request->kecamatan,
+            'id_kelurahan' => $request->kelurahan,
+            'kode_pos' => $request->kodepos,
+            'price' => (int)$request->pricing,
         );
 
         $insert = DB::table('tb_pricing')->insert($data);
@@ -69,12 +72,16 @@ class PricingController extends Controller
         $area = DB::table('reff_area')->select('id', 'pricing')->where('postal_code', $request->zipcode)->where('id_province', $request->province)->where('id_area', $request->area)->where('id_district', $request->district)->where('id_subdistrict', $request->subdistrict)->first();
 
         $data = array(
-            'id_area' => $area->id,
             'id_service' => $request->service,
             'id_type' => $request->type,
-            'price' => (int)$area->pricing,
+            'id_provinsi' => $request->province,
+            'id_kota' => $request->kota,
+            'id_kecamatan' => $request->kecamatan,
+            'id_kelurahan' => $request->kelurahan,
+            'kode_pos' => $request->kodepos,
+            'price' => (int)$request->pricing,
         );
-
+        // dd($data);
         $update = DB::table('tb_pricing')->where('id', $request->id)->update($data);
 
         if ($update) {
@@ -98,11 +105,14 @@ class PricingController extends Controller
     public function get_pricing(Request $request)
     {
         // dd($request->client);
-        $pricing = DB::table('tb_pricing')->select('tb_pricing.id', 'tb_client.account_name', 'reff_area.province', 'reff_area.area', 'reff_area.district', 'reff_area.subdistrict', 'reff_area.postal_code', 'reff_service.service', 'reff_type.type', 'price')
+        $pricing = DB::table('tb_pricing')->select('tb_pricing.id', 'tb_client.account_name', 'reff_service.service', 'reff_type.type', 'price', 'tb_provinsi.nama_provinsi', 'tb_kota.nama_kota', 'tb_kecamatan.nama_kecamatan', 'tb_kelurahan.kelurahan', 'kode_pos')
             ->join('tb_client', 'tb_client.id', '=', 'tb_pricing.id_client')
-            ->join('reff_area', 'reff_area.id', '=', 'tb_pricing.id_area')
             ->join('reff_service', 'reff_service.id', '=', 'tb_pricing.id_service')
             ->join('reff_type', 'reff_type.id', '=', 'tb_pricing.id_type')
+            ->join('tb_provinsi', 'tb_provinsi.id_provinsi', '=', 'tb_pricing.id_provinsi')
+            ->join('tb_kota', 'tb_kota.id_kota', '=', 'tb_pricing.id_kota')
+            ->join('tb_kecamatan', 'tb_kecamatan.id_kecamatan', '=', 'tb_pricing.id_kecamatan')
+            ->join('tb_kelurahan', 'tb_kelurahan.id_kelurahan', '=', 'tb_pricing.id_kelurahan')
             ->where('tb_pricing.id_client', $request->client)
             ->orderBy('tb_pricing.id', 'DESC')
             ->get()->toArray();
@@ -128,8 +138,14 @@ class PricingController extends Controller
     public function get_edit_detail(Request $request, $id)
     {
         // dd($request->client);
-        $pricing = DB::table('tb_pricing')
-            ->join('reff_area', 'reff_area.id', '=', 'tb_pricing.id_area')
+        $pricing = DB::table('tb_pricing')->select('tb_pricing.id', 'tb_client.account_name', 'reff_service.id as id_service', 'reff_type.id as id_type', 'price', 'tb_provinsi.id_provinsi', 'tb_kota.id_kota', 'tb_kecamatan.id_kecamatan', 'tb_kelurahan.id_kelurahan', 'kode_pos')
+            ->join('tb_client', 'tb_client.id', '=', 'tb_pricing.id_client')
+            ->join('reff_service', 'reff_service.id', '=', 'tb_pricing.id_service')
+            ->join('reff_type', 'reff_type.id', '=', 'tb_pricing.id_type')
+            ->join('tb_provinsi', 'tb_provinsi.id_provinsi', '=', 'tb_pricing.id_provinsi')
+            ->join('tb_kota', 'tb_kota.id_kota', '=', 'tb_pricing.id_kota')
+            ->join('tb_kecamatan', 'tb_kecamatan.id_kecamatan', '=', 'tb_pricing.id_kecamatan')
+            ->join('tb_kelurahan', 'tb_kelurahan.id_kelurahan', '=', 'tb_pricing.id_kelurahan')
             ->where('tb_pricing.id', $id)
             ->get()->toArray();
 

@@ -95,12 +95,12 @@
                                     @endif
 
                                     @if ($menu->id_menu_function == 2 && $menu->menu_name == 'client-delete')
-                                        <a href="javascript:void(0);" onclick=deleted(${v.id}) class="action"><i class="bx bxs-trash-alt"
+                                        <a href="javascript:void(0);" onclick=deleted(${v.id}) class="me-4 action"><i class="bx bxs-trash-alt"
                                                 style='color:#fb0303'></i></a>
                                     @endif
                                 @endforeach
 
-                                <a href="{{ route('pricing.list_pricing') }}?id_client=${v.id}" class="ml-4 action"><i class="bx bxs-trash-alt" style='color:#fb0303'></i></a>
+                                <a href="{{ route('pricing.list_pricing') }}?id_client=${v.id}" class="me-4 action"><i class="bx bx-money" style='color:#30C0A6'></i></a>
                             </div>
                         </td>
 

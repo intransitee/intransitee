@@ -8,6 +8,7 @@ use DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\Orders;
 use App\Imports\ImportOrder;
+use App\Imports\Tes;
 use App\Imports\UpdateOrder;
 use Session;
 
@@ -36,7 +37,7 @@ class OrderController extends Controller
 
     public function insert(Request $request)
     {
-        $check = DB::table('tb_order')->orderBy('id', 'DESC')->first();
+        $check = DB::table('tb_order_backup')->orderBy('id', 'DESC')->first();
 
         $res = $check->id + 1;
 
@@ -52,12 +53,14 @@ class OrderController extends Controller
 
         $generateawb = 'IN' . date("Y-m-d") . $number;
         $awb = str_replace('-', '', $generateawb);
+        $shipper_price = explode("#", $request->shipper_pricing_area);
+        $recipient_price = explode("#", $request->recipient_pricing_area);
 
-        $ship_temp_area = DB::table('reff_area')->where('id_area', $request->shipper_area)->first();
-        $ship_temp_district = DB::table('reff_area')->where('id_district', $request->shipper_district)->first();
+        // $ship_temp_area = DB::table('reff_area')->where('id_area', $request->shipper_area)->first();
+        // $ship_temp_district = DB::table('reff_area')->where('id_district', $request->shipper_district)->first();
 
-        $recip_temp_area = DB::table('reff_area')->where('id_area', $request->recipient_area)->first();
-        $recip_temp_district = DB::table('reff_area')->where('id_district', $request->recipient_district)->first();
+        // $recip_temp_area = DB::table('reff_area')->where('id_area', $request->recipient_area)->first();
+        // $recip_temp_district = DB::table('reff_area')->where('id_district', $request->recipient_district)->first();
 
         if (session('role') == 3) {
             # code...
@@ -75,19 +78,11 @@ class OrderController extends Controller
             "shipper_name" => $request->shipper_name,
             "shipper_phone" => $request->shipper_phone,
             "shipper_address" => $request->shipper_address,
-            "shipper_zipcode" => $request->shipper_zipcode,
-            "shipper_area" => $request->shipper_area,
-            "shipper_temp_area" => $ship_temp_area->area,
-            "shipper_district" => $request->shipper_district,
-            "shipper_temp_district" => $ship_temp_district->district,
+            "shipper_pricing_area" => $shipper_price[0],
             "recipient_name" => $request->recipient_name,
             "recipient_phone" => $request->recipient_phone,
             "recipient_address" => $request->recipient_address,
-            "recipient_zip_code" => $request->recipient_zipcode,
-            "recipient_area" => $request->recipient_area,
-            "recipient_temp_area" => $recip_temp_area->area,
-            "recipient_district" => $request->recipient_district,
-            "recipient_temp_district" => $recip_temp_district->district,
+            "recipient_pricing_area" => $recipient_price[0],
             "delivery_fee" => $request->delivery_fee,
             "weight" => $request->weight,
             "value_of_goods" => $request->value_of_goods,
@@ -101,13 +96,13 @@ class OrderController extends Controller
             "delivery_scheduled_date" => $request->delivery_date,
             "bulk_log_status" => 1
         );
-
-        $insert = DB::table('tb_order')->insert($data);
+        // dd($data);
+        $insert = DB::table('tb_order_backup')->insert($data);
 
         if ($insert) {
             # code...
 
-            $log_id = DB::table('tb_order')->orderBy('id', 'DESC')->first();
+            $log_id = DB::table('tb_order_backup')->orderBy('id', 'DESC')->first();
 
             $data_log = array(
                 'id_order' => $log_id->id,
@@ -176,12 +171,12 @@ class OrderController extends Controller
             "last_updated" => $update_time
         );
 
-        $update = DB::table('tb_order')->where('id', $request->id_order)->update($data);
+        $update = DB::table('tb_order_backup')->where('id', $request->id_order)->update($data);
 
         if ($update) {
             # code...
             // update status yang di tb order
-            $update = DB::table('tb_order')->where('id', $request->id_order)->update($update_order);
+            $update = DB::table('tb_order_backup')->where('id', $request->id_order)->update($update_order);
 
             // update log
             $data_log = array(
@@ -215,21 +210,21 @@ class OrderController extends Controller
 
         if (session('role') != 3) {
             # code...
-            $order = DB::table('tb_order')
-                ->select('tb_order.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'reff_status.warna')
-                ->join('tb_client', 'tb_client.id', '=', 'tb_order.id_client')
-                ->join('reff_type', 'reff_type.id', '=', 'tb_order.id_type')
-                ->join('reff_service', 'reff_service.id', '=', 'tb_order.id_service')
-                ->join('reff_status', 'reff_status.id', '=', 'tb_order.id_status')
+            $order = DB::table('tb_order_backup')
+                ->select('tb_order_backup.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'reff_status.warna')
+                ->join('tb_client', 'tb_client.id', '=', 'tb_order_backup.id_client')
+                ->join('reff_type', 'reff_type.id', '=', 'tb_order_backup.id_type')
+                ->join('reff_service', 'reff_service.id', '=', 'tb_order_backup.id_service')
+                ->join('reff_status', 'reff_status.id', '=', 'tb_order_backup.id_status')
                 ->orderBy('id', 'DESC')
                 ->get()->toArray();
         } else {
-            $order = DB::table('tb_order')
-                ->select('tb_order.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'reff_status.warna')
-                ->join('tb_client', 'tb_client.id', '=', 'tb_order.id_client')
-                ->join('reff_type', 'reff_type.id', '=', 'tb_order.id_type')
-                ->join('reff_service', 'reff_service.id', '=', 'tb_order.id_service')
-                ->join('reff_status', 'reff_status.id', '=', 'tb_order.id_status')
+            $order = DB::table('tb_order_backup')
+                ->select('tb_order_backup.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'reff_status.warna')
+                ->join('tb_client', 'tb_client.id', '=', 'tb_order_backup.id_client')
+                ->join('reff_type', 'reff_type.id', '=', 'tb_order_backup.id_type')
+                ->join('reff_service', 'reff_service.id', '=', 'tb_order_backup.id_service')
+                ->join('reff_status', 'reff_status.id', '=', 'tb_order_backup.id_status')
                 ->where('id_client', session('client'))
                 ->orderBy('id', 'DESC')
                 ->get()->toArray();
@@ -265,25 +260,61 @@ class OrderController extends Controller
     public function getDetail(Request $request)
     {
 
-        $order = DB::table('tb_order')
-            ->select('tb_order.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'shipper_name', 'shipper_phone', 'shipper_address', 'shipper_zipcode', 'shipper_area', 'shipper_district', 'recipient_name', 'recipient_phone', 'recipient_address', 'recipient_zip_code', 'recipient_area', 'recipient_district', 'weight', 'value_of_goods', 'is_insured', 'is_cod', 'tb_order.insurance_fee', 'tb_order.cod_fee', 'total_fee', 'reff_status.status')
-            ->join('tb_client', 'tb_client.id', '=', 'tb_order.id_client')
-            ->join('reff_type', 'reff_type.id', '=', 'tb_order.id_type')
-            ->join('reff_service', 'reff_service.id', '=', 'tb_order.id_service')
-            ->join('reff_status', 'reff_status.id', '=', 'tb_order.id_status')
-            ->where('tb_order.id', $request->id)
+        $order = DB::table('tb_order_backup')
+            ->select('tb_order_backup.id', 'awb', 'tb_client.account_name', 'reff_type.type', 'reff_service.service', 'collection_scheduled_date', 'delivery_scheduled_date', 'reff_status.status', 'created_date', 'shipper_name', 'shipper_phone', 'shipper_address', 'recipient_name', 'recipient_phone', 'recipient_address', 'weight', 'value_of_goods', 'is_insured', 'is_cod', 'tb_order_backup.insurance_fee', 'tb_order_backup.cod_fee', 'total_fee', 'reff_status.status', 'shipper_pricing_area')
+            ->join('tb_client', 'tb_client.id', '=', 'tb_order_backup.id_client')
+            ->join('reff_type', 'reff_type.id', '=', 'tb_order_backup.id_type')
+            ->join('reff_service', 'reff_service.id', '=', 'tb_order_backup.id_service')
+            ->join('reff_status', 'reff_status.id', '=', 'tb_order_backup.id_status')
+            ->where('tb_order_backup.id', $request->id)
             ->first();
 
-        $shipper_area = DB::table('reff_area')->select('area')->where('id_area', $order->shipper_area)->first();
-        $shipper_district = DB::table('reff_area')->select('district')->where('id_district', $order->shipper_district)->first();
-        $recip_area = DB::table('reff_area')->select('area')->where('id_area', $order->recipient_area)->first();
-        $recip_district = DB::table('reff_area')->select('district')->where('id_district', $order->recipient_district)->first();
+        $shipper = DB::table('tb_order_backup')
+            ->select('nama_provinsi', 'nama_kota', 'nama_kecamatan', 'kelurahan', 'kode_pos')
+            ->join('tb_pricing', 'tb_pricing.id', '=', 'tb_order_backup.shipper_pricing_area')
+            ->join('tb_provinsi', 'tb_provinsi.id_provinsi', '=', 'tb_pricing.id_provinsi')
+            ->join('tb_kota', 'tb_kota.id_kota', '=', 'tb_pricing.id_kota')
+            ->join('tb_kecamatan', 'tb_kecamatan.id_kecamatan', '=', 'tb_pricing.id_kecamatan')
+            ->join('tb_kelurahan', 'tb_kelurahan.id_kelurahan', '=', 'tb_pricing.id_kelurahan')
+            ->where('tb_order_backup.id', $request->id)
+            ->first();
 
-        $bill = array(
-            'shipper_area' => $shipper_area->area,
-            'shipper_district' => $shipper_district->district,
-            'recip_area' => $recip_area->area,
-            'recip_district' => $recip_district->district,
+        $recipt = DB::table('tb_order_backup')
+            ->select('nama_provinsi', 'nama_kota', 'nama_kecamatan', 'kelurahan', 'kode_pos')
+            ->join('tb_pricing', 'tb_pricing.id', '=', 'tb_order_backup.recipient_pricing_area')
+            ->join('tb_provinsi', 'tb_provinsi.id_provinsi', '=', 'tb_pricing.id_provinsi')
+            ->join('tb_kota', 'tb_kota.id_kota', '=', 'tb_pricing.id_kota')
+            ->join('tb_kecamatan', 'tb_kecamatan.id_kecamatan', '=', 'tb_pricing.id_kecamatan')
+            ->join('tb_kelurahan', 'tb_kelurahan.id_kelurahan', '=', 'tb_pricing.id_kelurahan')
+            ->where('tb_order_backup.id', $request->id)
+            ->first();
+
+        // $shipper_area = DB::table('reff_area')->select('area')->where('id_area', $order->shipper_area)->first();
+        // $shipper_district = DB::table('reff_area')->select('district')->where('id_district', $order->shipper_district)->first();
+        // $recip_area = DB::table('reff_area')->select('area')->where('id_area', $order->recipient_area)->first();
+        // $recip_district = DB::table('reff_area')->select('district')->where('id_district', $order->recipient_district)->first();
+
+        // $bill = array(
+        //     'shipper_area' => $shipper_area->area,
+        //     'shipper_district' => $shipper_district->district,
+        //     'recip_area' => $recip_area->area,
+        //     'recip_district' => $recip_district->district,
+        // );
+
+        $bill_ship = array(
+            "nama_provinsi" => $shipper->nama_provinsi,
+            "nama_kota" => $shipper->nama_kota,
+            "nama_kecamatan" => $shipper->nama_kecamatan,
+            "kelurahan" => $shipper->kelurahan,
+            "kode_pos" => $shipper->kode_pos,
+        );
+
+        $bill_recipt = array(
+            "nama_provinsi" => $recipt->nama_provinsi,
+            "nama_kota" => $recipt->nama_kota,
+            "nama_kecamatan" => $recipt->nama_kecamatan,
+            "kelurahan" => $recipt->kelurahan,
+            "kode_pos" => $recipt->kode_pos,
         );
 
         # code...
@@ -306,7 +337,8 @@ class OrderController extends Controller
                 'status' => true,
                 'message' => "Berhasil ambil order",
                 'data' => $order,
-                'bill' => $bill,
+                'bill' => $bill_ship,
+                'bill2' => $bill_recipt,
                 'log' => $getLog
             );
 
@@ -370,7 +402,7 @@ class OrderController extends Controller
 
     public function export()
     {
-        $check = DB::table('tb_order')->count();
+        $check = DB::table('tb_order_backup')->count();
 
         if ($check < 1) {
             # code...
@@ -384,11 +416,15 @@ class OrderController extends Controller
     {
         if ($request->flag == 1) {
             # code...
+            ini_set('memory_limit', '512M');
             $file = $request->file('file');
             $nama_file = rand() . $file->getClientOriginalName();
             $file->move('import', $nama_file);
 
             Excel::import(new ImportOrder, public_path('/import/' . $nama_file));
+
+            // FOR TEST IMPORRT DATA 10K +++
+            // Excel::import(new Tes, public_path('/import/' . $nama_file));
 
             return redirect()->route('order.order')->with('store', 'Berhasil tambah order');
         } else {
@@ -397,55 +433,42 @@ class OrderController extends Controller
             $file->move('import', $nama_file);
 
             $data = Excel::toArray(new UpdateOrder, public_path('/import/' . $nama_file));
-            // dd($data);
+
             $bulk = [];
+
             $c = collect(head($data));
 
             foreach ($c as $key => $value) {
 
-                $ship_temp_area = DB::table('reff_area')->where('id_area', $value[8])->first();
-                $ship_temp_district = DB::table('reff_area')->where('id_district', $value[9])->first();
-
-                $recip_temp_area = DB::table('reff_area')->where('id_area', $value[14])->first();
-                $recip_temp_district = DB::table('reff_area')->where('id_district', $value[15])->first();
-
                 $bulk[] = array(
-                    'awb' => $value[0],
-                    'id_client' => $value[1],
-                    'id_type' => $value[2],
-                    "id_service" => $value[3],
-                    "shipper_name" => $value[4],
-                    "shipper_phone" => $value[5],
-                    "shipper_address" => $value[6],
-                    "shipper_zipcode" => $value[7],
-                    "shipper_area" => $value[8],
-                    "shipper_temp_area" => $ship_temp_area->area,
-                    "shipper_district" => $value[9],
-                    "shipper_temp_district" => $ship_temp_district->district,
-                    "recipient_name" => $value[10],
-                    "recipient_phone" => $value[11],
-                    "recipient_address" => $value[12],
-                    "recipient_zip_code" => $value[13],
-                    "recipient_area" => $value[14],
-                    "recipient_temp_area" => $recip_temp_area->area,
-                    "recipient_district" => $value[15],
-                    "recipient_temp_district" => $recip_temp_district->district,
-                    "weight" => $value[16],
-                    "value_of_goods" => $value[17],
-                    "is_insured" => $value[18],
-                    "is_cod" => $value[19],
-                    "insurance_fee" => $value[20],
-                    "cod_fee" => $value[21],
-                    "total_fee" => $value[22],
-                    "collection_scheduled_date" => $value[23],
-                    "delivery_scheduled_date" => $value[24],
-                    "reff_id" => $value[25]
+                    'awb' => $value[22],
+                    'reff_id' => $value[20],
+                    'id_client' => $value[0],
+                    'id_type' => $value[1],
+                    "id_service" => $value[2],
+                    "shipper_name" => $value[3],
+                    "shipper_phone" => $value[4],
+                    "shipper_address" => $value[5],
+                    "shipper_pricing_area" => $value[6],
+                    "recipient_name" => $value[7],
+                    "recipient_phone" => $value[8],
+                    "recipient_address" => $value[9],
+                    "recipient_pricing_area" => $value[10],
+                    "weight" => $value[11],
+                    "value_of_goods" => $value[12],
+                    "is_cod" => $value[13],
+                    "is_insured" => $value[14],
+                    "insurance_fee" => $value[15],
+                    "cod_fee" => $value[16],
+                    "total_fee" => $value[17],
+                    "collection_scheduled_date" => $value[18],
+                    "delivery_scheduled_date" => $value[19],
+                    "delivery_fee" => $value[21]
                 );
                 # code...
             }
-
             foreach ($bulk as $num => $item) {
-                $update = DB::table('tb_order')->where('awb', $item['awb'])->update($item);
+                $update = DB::table('tb_order_backup')->where('awb', $item['awb'])->update($item);
             }
 
             return redirect()->route('order.order')->with('update', 'Berhasil ubah order');
@@ -756,14 +779,22 @@ class OrderController extends Controller
 
     public function calculate_cod_fee(Request $request)
     {
+
+        if (session('client') == 0) {
+            # code...
+            $client  = $request->id_client;
+        } else {
+            $client  = session('client');
+        }
+
         if ($request->is_cod == 1) {
             # code...
-            $client = DB::table('tb_client')->where('id', session('client'))->first();
+            $client = DB::table('tb_client')->where('id', $client)->first();
             if ($client) {
                 # code...
                 $data_result = array(
                     'status' => true,
-                    'message' => "Berhasil ambil district",
+                    'message' => "Berhasil ambil harga cod client",
                     'data' => $client
                 );
 
@@ -771,7 +802,7 @@ class OrderController extends Controller
             } else {
                 $data_result = array(
                     'status' => false,
-                    'message' => "Gagal ambil district"
+                    'message' => "Gagal ambil harga cod client"
                 );
 
                 return json_encode($data_result);
@@ -788,14 +819,21 @@ class OrderController extends Controller
 
     public function calculate_insurance_fee(Request $request)
     {
+        if (session('client') == 0) {
+            # code...
+            $client  = $request->id_client;
+        } else {
+            $client  = session('client');
+        }
+
         if ($request->insurance == 1) {
             # code...
-            $client = DB::table('tb_client')->where('id', session('client'))->first();
+            $client = DB::table('tb_client')->where('id', $client)->first();
             if ($client) {
                 # code...
                 $data_result = array(
                     'status' => true,
-                    'message' => "Berhasil ambil district",
+                    'message' => "Berhasil ambil harga insurance",
                     'data' => $client
                 );
 
@@ -803,7 +841,7 @@ class OrderController extends Controller
             } else {
                 $data_result = array(
                     'status' => false,
-                    'message' => "Gagal ambil district"
+                    'message' => "Gagal ambil harga insurance"
                 );
 
                 return json_encode($data_result);
@@ -816,5 +854,255 @@ class OrderController extends Controller
 
             return json_encode($data_result);
         }
+    }
+
+
+
+
+
+    // REFF AREA
+    public function reff_provinsi(Request $request)
+    {
+        $provinsi = DB::table('tb_provinsi')->select('id_provinsi', 'nama_provinsi')->get()->toArray();
+
+        if ($provinsi) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil provinsi",
+                'data' => $provinsi
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil provinsi"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function reff_kota(Request $request)
+    {
+        $kota = DB::table('tb_kota')->select('id_kota', 'nama_kota')->where('id_provinsi', $request->provinsi)->get()->toArray();
+
+        if ($kota) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil kota",
+                'data' => $kota
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil kota"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function reff_kecamatan(Request $request)
+    {
+        $kecamatan = DB::table('tb_kecamatan')->select('id_kecamatan', 'nama_kecamatan')->where('id_kota', $request->kota)->get()->toArray();
+
+        if ($kecamatan) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil kecamatan",
+                'data' => $kecamatan
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil kecamatan"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function reff_kelurahan(Request $request)
+    {
+        $kelurahan = DB::table('tb_kelurahan')->select('id_kelurahan', 'kelurahan')->where('id_kecamatan', $request->kecamatan)->get()->toArray();
+
+        if ($kelurahan) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil kelurahan",
+                'data' => $kelurahan
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil kelurahan"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function reff_kodepos(Request $request)
+    {
+        $pos = DB::table('tb_kodepos')->select('id_kodepos', 'kode_pos')->where('id_kelurahan', $request->kelurahan)->get()->toArray();
+
+        if ($pos) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil kodepos",
+                'data' => $pos
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil kodepos"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function reff_all_kota(Request $request)
+    {
+        $allkota = DB::table('tb_kota')->get()->toArray();
+
+        if ($allkota) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil kota",
+                'data' => $allkota
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil kota"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function reff_all_kecamatan(Request $request)
+    {
+        $allkecamatan = DB::table('tb_kecamatan')->get()->toArray();
+
+        if ($allkecamatan) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil kecamatan",
+                'data' => $allkecamatan
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil kecamatan"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function reff_all_kelurahan(Request $request)
+    {
+        $allkelurahan = DB::table('tb_kelurahan')->get()->toArray();
+
+        if ($allkelurahan) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil kelurahan",
+                'data' => $allkelurahan
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil kelurahan"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function reff_all_kodepos(Request $request)
+    {
+        $allkodepos = DB::table('tb_kodepos')->get()->toArray();
+
+        if ($allkodepos) {
+            # code...
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil kodepos",
+                'data' => $allkodepos
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "Gagal ambil kodepos"
+            );
+
+            return json_encode($data_result);
+        }
+    }
+
+    public function provclient(Request $request)
+    {
+        // dd($request->id_service);
+
+        $pricing = DB::table('tb_pricing')->select('tb_pricing.id', 'tb_client.account_name', 'reff_service.service', 'reff_type.type', 'price', 'tb_provinsi.nama_provinsi', 'tb_kota.nama_kota', 'tb_kecamatan.nama_kecamatan', 'tb_kelurahan.kelurahan', 'kode_pos')
+            ->join('tb_client', 'tb_client.id', '=', 'tb_pricing.id_client')
+            ->join('reff_service', 'reff_service.id', '=', 'tb_pricing.id_service')
+            ->join('reff_type', 'reff_type.id', '=', 'tb_pricing.id_type')
+            ->join('tb_provinsi', 'tb_provinsi.id_provinsi', '=', 'tb_pricing.id_provinsi')
+            ->join('tb_kota', 'tb_kota.id_kota', '=', 'tb_pricing.id_kota')
+            ->join('tb_kecamatan', 'tb_kecamatan.id_kecamatan', '=', 'tb_pricing.id_kecamatan')
+            ->join('tb_kelurahan', 'tb_kelurahan.id_kelurahan', '=', 'tb_pricing.id_kelurahan')
+            ->orderBy('tb_pricing.id', 'DESC')
+            ->where('id_client', $request->id_client)
+            ->where('id_type', $request->id_type)
+            ->where('id_service', $request->id_service)
+            ->get()->toArray();
+
+        if ($pricing) {
+            $data_result = array(
+                'status' => true,
+                'message' => "Berhasil ambil pricing",
+                'data' => $pricing
+            );
+
+            return json_encode($data_result);
+        } else {
+            $data_result = array(
+                'status' => false,
+                'message' => "gagal ambil pricing",
+            );
+
+            return json_encode($data_result);
+        }
+
+        // $pricing = DB::table('tb_provinsi')->select('id_provinsi', 'nama_provinsi')->get()->toArray();
     }
 }

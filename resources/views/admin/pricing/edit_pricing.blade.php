@@ -29,28 +29,18 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label" for="zipcode">Zip code</label>
-                                <select class="form-select" id="zipcode" aria-label="Default select example"
-                                    onchange="getProvince()">
-                                    <option selected disabled>Pilih zipcode</option>
-                                </select>
-                                <small style="color: red">Fill zipcode to update province, area, district &
-                                    subdistrict</small>
-                            </div>
-
-                            <div class="mb-3">
                                 <label class="form-label" for="province">Province</label>
                                 <select class="form-select" id="province" aria-label="Default select example"
-                                    onchange="getArea()">
+                                    onchange="getKota()">
                                     <option selected disabled>Pilih province</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label" for="area">Area</label>
-                                <select class="form-select" id="area" aria-label="Default select example"
+                                <label class="form-label" for="city">City</label>
+                                <select class="form-select" id="city" aria-label="Default select example"
                                     onchange="getDistrict()">
-                                    <option selected disabled>Pilih area</option>
+                                    <option selected disabled>Choose a city</option>
                                 </select>
                             </div>
 
@@ -58,15 +48,28 @@
                                 <label class="form-label" for="district">District</label>
                                 <select class="form-select" id="district" aria-label="Default select example"
                                     onchange="getSubDistrict()">
-                                    <option selected disabled>Pilih district</option>
+                                    <option selected disabled>Choose a district</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label" for="subdistrict">Subdistrict</label>
-                                <select class="form-select" id="subdistrict" aria-label="Default select example">
-                                    <option selected disabled>Pilih subdistrict</option>
+                                <select class="form-select" id="subdistrict" aria-label="Default select example"
+                                    onchange="getKodepos()">
+                                    <option selected disabled>Choose a subdistrict</option>
                                 </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="kodepos">Postal Code</label>
+                                <select class="form-select" id="kodepos" aria-label="Default select example">
+                                    <option selected disabled>Choose a postal code</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="pricing">Pricing</label>
+                                <input type="text" class="form-control" id="pricing">
                             </div>
 
                             <button type="button" onclick="addClient()" class="btn btn-primary validasi">Simpan</button>
@@ -79,11 +82,253 @@
     @section('fungsi')
         <script type="text/javascript">
             $(document).ready(function() {
-                edit();
-                service();
+                province();
                 type();
-                zipcode();
+                service();
+                allKota();
+                allKecamatan();
+                allKelurahan();
+                allKodePos();
+
+                edit();
             });
+
+            function getKota(params) {
+                var provinsi = $('#province').val();
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: `{{ url('/reff_kota') }}`,
+                    type: "get",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        provinsi: provinsi,
+                    },
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+                        console.log(obj);
+                        var kota = '';
+
+                        kota += `<option value="0">Choose a city</option>`;
+
+                        $.each(obj.data, function(k, v) {
+                            kota += `<option value="${v.id_kota}">${v.nama_kota}</option>`
+                        });
+
+                        $('#city').html(kota);
+                    } //ajax post data
+                });
+            }
+
+            function getDistrict(params) {
+                var kota = $('#city').val();
+                console.log(kota)
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: `{{ url('/reff_kecamatan') }}`,
+                    type: "get",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        kota: kota,
+                    },
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+
+                        var district = '';
+
+                        district += `<option value="0">Choose a district</option>`;
+
+                        $.each(obj.data, function(k, v) {
+                            district += `<option value="${v.id_kecamatan}">${v.nama_kecamatan}</option>`
+                        });
+
+                        $('#district').html(district);
+                    } //ajax post data
+                });
+            }
+
+            function getSubDistrict(params) {
+                var kecamatan = $('#district').val();
+
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: `{{ url('/reff_kelurahan') }}`,
+                    type: "get",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        kecamatan: kecamatan,
+                    },
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+
+                        var subdistrict = '';
+
+                        subdistrict += `<option value="0">Choose a subdistrict</option>`;
+
+                        $.each(obj.data, function(k, v) {
+                            subdistrict += `<option value="${v.id_kelurahan}">${v.kelurahan}</option>`
+                        });
+
+                        $('#subdistrict').html(subdistrict);
+                    } //ajax post data
+                });
+            }
+
+            function getKodepos(params) {
+                var kelurahan = $('#subdistrict').val();
+
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: `{{ url('/reff_kodepos') }}`,
+                    type: "get",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        kelurahan: kelurahan,
+                    },
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+
+                        var kodepos = '';
+
+                        // kodepos += `<option value="0">Choose a postal code</option>`;
+
+                        $.each(obj.data, function(k, v) {
+                            kodepos += `<option value="${v.kode_pos}">${v.kode_pos}</option>`
+                        });
+
+                        $('#kodepos').html(kodepos);
+                    } //ajax post data
+                });
+            }
+
+            function province() {
+
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: "{{ url('/reff_provinsi') }}",
+                    type: "get",
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+
+                        var provinsi = '';
+
+                        $.each(obj.data, function(k, v) {
+                            provinsi += `<option value="${v.id_provinsi}">${v.nama_provinsi}</option>`
+                        });
+
+                        $('#province').append(provinsi);
+                    } //ajax post data
+                });
+            }
+
+            function allKota() {
+
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: "{{ url('/reff_all_kota') }}",
+                    type: "get",
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+                        console.log(obj)
+                        var allkotanya = '';
+
+                        $.each(obj.data, function(k, v) {
+                            allkotanya += `<option value="${v.id_kota}">${v.nama_kota}</option>`
+                        });
+
+                        $('#city').append(allkotanya);
+                    } //ajax post data
+                });
+            }
+
+            function allKecamatan() {
+
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: "{{ url('/reff_all_kecamatan') }}",
+                    type: "get",
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+                        console.log(obj)
+                        var allkecamatannya = '';
+
+                        $.each(obj.data, function(k, v) {
+                            allkecamatannya +=
+                                `<option value="${v.id_kecamatan}">${v.nama_kecamatan}</option>`
+                        });
+
+                        $('#district').append(allkecamatannya);
+                    } //ajax post data
+                });
+            }
+
+            function allKelurahan() {
+
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: "{{ url('/reff_all_kelurahan') }}",
+                    type: "get",
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+                        console.log(obj)
+                        var allkelurahan = '';
+
+                        $.each(obj.data, function(k, v) {
+                            allkelurahan +=
+                                `<option value="${v.id_kelurahan}">${v.kelurahan}</option>`
+                        });
+
+                        $('#subdistrict').append(allkelurahan);
+                    } //ajax post data
+                });
+            }
+
+            function allKodePos() {
+
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: "{{ url('/reff_all_kodepos') }}",
+                    type: "get",
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+                        console.log(obj)
+                        var kodeposnya = '';
+
+                        $.each(obj.data, function(k, v) {
+                            kodeposnya +=
+                                `<option value="${v.kode_pos}">${v.kode_pos}</option>`
+                        });
+
+                        $('#kodepos').append(kodeposnya);
+                    } //ajax post data
+                });
+            }
 
             function edit() {
                 var id = $('#id_pricing').val();
@@ -99,124 +344,13 @@
                         console.log(obj)
                         $('#service').val(obj.data[0].id_service);
                         $('#type').val(obj.data[0].id_type);
-                        $('#zipcode').val(obj.data[0].postal_code);
-                        $('#province').val(obj.data[0].id_province);
-                        $('#area').val(obj.data[0].id_area);
-                        $('#district').val(obj.data[0].id_district);
-                        $('#subdistrict').val(obj.data[0].id_subdistrict);
+                        $('#province').val(obj.data[0].id_provinsi);
+                        $('#city').val(obj.data[0].id_kota);
+                        $('#district').val(obj.data[0].id_kecamatan);
+                        $('#subdistrict').val(obj.data[0].id_kelurahan);
+                        $('#kodepos').val(obj.data[0].kode_pos);
+                        $('#pricing').val(obj.data[0].price);
 
-                    } //ajax post data
-                });
-            }
-
-            function getProvince(params) {
-                var zipcode = $('#zipcode').val();
-
-                $.ajax({
-                    processing: true,
-                    serverSide: true,
-                    url: `{{ url('/getProvince/${zipcode}') }}`,
-                    type: "get",
-                    context: document.body,
-                    success: function(data) {
-                        var json = data;
-                        obj = JSON.parse(json);
-
-                        var province = '';
-
-                        province += `<option value="0">Pilih Province</option>`;
-
-                        $.each(obj.data, function(k, v) {
-                            province += `<option value="${v.id_province}">${v.province}</option>`
-                        });
-
-                        $('#province').html(province);
-                    } //ajax post data
-                });
-            }
-
-            function getArea(params) {
-                var zipcode = $('#zipcode').val();
-                var province = $('#province').val();
-                console.log(province);
-                $.ajax({
-                    processing: true,
-                    serverSide: true,
-                    url: `{{ url('/getAreaByProvince/${province}/${zipcode}') }}`,
-                    type: "get",
-                    context: document.body,
-                    success: function(data) {
-                        var json = data;
-                        obj = JSON.parse(json);
-
-                        var area = '';
-
-                        area += `<option value="0">Pilih Area</option>`;
-
-                        $.each(obj.data, function(k, v) {
-                            area += `<option value="${v.id_area}">${v.area}</option>`
-                        });
-
-                        $('#area').html(area);
-                    } //ajax post data
-                });
-            }
-
-            function getDistrict(params) {
-                var zipcode = $('#zipcode').val();
-                var province = $('#province').val();
-                var area = $('#area').val();
-
-                console.log(province);
-
-                $.ajax({
-                    processing: true,
-                    serverSide: true,
-                    url: `{{ url('/getDistrictByArea/${zipcode}/${province}/${area}') }}`,
-                    type: "get",
-                    context: document.body,
-                    success: function(data) {
-                        var json = data;
-                        obj = JSON.parse(json);
-
-                        var district = '';
-
-                        district += `<option value="0">Pilih District</option>`;
-
-                        $.each(obj.data, function(k, v) {
-                            district += `<option value="${v.id_district}">${v.district}</option>`
-                        });
-
-                        $('#district').html(district);
-                    } //ajax post data
-                });
-            }
-
-            function getSubDistrict(params) {
-                var zipcode = $('#zipcode').val();
-                var province = $('#province').val();
-                var area = $('#area').val();
-                var district = $('#district').val();
-
-                $.ajax({
-                    processing: true,
-                    serverSide: true,
-                    url: `{{ url('/getSubDistrictByArea/${zipcode}/${province}/${area}/${district}') }}`,
-                    type: "get",
-                    context: document.body,
-                    success: function(data) {
-                        var json = data;
-                        obj = JSON.parse(json);
-
-                        var subdistrict = '';
-
-                        subdistrict += `<option value="0">Pilih Subdistrict</option>`;
-
-                        $.each(obj.data, function(k, v) {
-                            subdistrict += `<option value="${v.id_subdistrict}">${v.subdistrict}</option>`
-                        });
-
-                        $('#subdistrict').html(subdistrict);
                     } //ajax post data
                 });
             }
@@ -240,29 +374,6 @@
                         });
 
                         $('#type').append(type);
-                    } //ajax post data
-                });
-            }
-
-            function zipcode() {
-
-                $.ajax({
-                    processing: true,
-                    serverSide: true,
-                    url: "{{ url('/reffZipcode') }}",
-                    type: "get",
-                    context: document.body,
-                    success: function(data) {
-                        var json = data;
-                        obj = JSON.parse(json);
-
-                        var zipcode = '';
-
-                        $.each(obj.data, function(k, v) {
-                            zipcode += `<option value="${v.postal_code}">${v.postal_code}</option>`
-                        });
-
-                        $('#zipcode').append(zipcode);
                     } //ajax post data
                 });
             }
@@ -295,11 +406,12 @@
                 var id = $('#id_pricing').val();
                 var service = $('#service').val();
                 var type = $('#type').val();
-                var zipcode = $('#zipcode').val();
                 var province = $('#province').val();
-                var area = $('#area').val();
-                var district = $('#district').val();
-                var subdistrict = $('#subdistrict').val();
+                var kota = $('#city').val();
+                var kecamatan = $('#district').val();
+                var kelurahan = $('#subdistrict').val();
+                var kodepos = $('#kodepos').val();
+                var pricing = $('#pricing').val();
 
                 $('.validasi').addClass('disabled')
 
@@ -313,11 +425,12 @@
                         id: id,
                         service: service,
                         type: type,
-                        zipcode: zipcode,
                         province: province,
-                        area: area,
-                        district: district,
-                        subdistrict: subdistrict
+                        kota: kota,
+                        kecamatan: kecamatan,
+                        kelurahan: kelurahan,
+                        kodepos: kodepos,
+                        pricing: pricing
                     },
                     dataType: "text",
                     success: function(data) {
@@ -327,7 +440,7 @@
                         if (obj.status == true) {
                             $("#editpricing")[0].reset();
                             $('.validasi').removeClass('disabled')
-                            window.location.href = '{{ route('pricing.list_pricing') }}';
+                            window.history.back();
                         } else {
                             $("#editpricing")[0].reset();
                             $('.validasi').removeClass('disabled')

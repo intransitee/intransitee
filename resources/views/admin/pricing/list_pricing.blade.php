@@ -30,7 +30,7 @@
                             <th>No</th>
                             <th>Account Name</th>
                             <th>Province</th>
-                            <th>Area</th>
+                            <th>City</th>
                             <th>District</th>
                             <th>Subdistrict</th>
                             <th>Postal code</th>
@@ -143,11 +143,11 @@
                         pricing += `<tr>
                         <td>${k+1}</td>
                         <td>${v.account_name}</td>
-                        <td>${v.province}</td>
-                        <td>${v.area}</td>
-                        <td>${v.district}</td>
-                        <td>${v.subdistrict}</td>
-                        <td>${v.postal_code}</td>
+                        <td>${v.nama_provinsi}</td>
+                        <td>${v.nama_kota}</td>
+                        <td>${v.nama_kecamatan}</td>
+                        <td>${v.kelurahan}</td>
+                        <td>${v.kode_pos}</td>
                         <td>${v.service}</td>
                         <td>${v.type}</td>
                         <td>${v.price}</td>

@@ -6,8 +6,9 @@
 
         <!-- Basic Layout -->
         @if (session('client') != 0)
-            <input type="text" value="{{ session('client') }}" id="myClient">
+            <input type="hidden" value="{{ session('client') }}" id="myClient">
         @endif
+        <input type="hidden" value="{{ session('client') }}" id="is_client">
         <div class="row">
             <div class="col-xl">
                 <div class="card mb-4">
@@ -32,14 +33,14 @@
 
                             <div class="mb-3">
                                 <label for="id_type" class="form-label">Type</label>
-                                <select class="form-select" id="id_type" aria-label="Default select example"
-                                    onchange="tipenya()">
+                                <select class="form-select" id="id_type" aria-label="Default select example">
                                     <option selected disabled>Pilih Type</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label for="id_service" class="form-label">Service</label>
-                                <select class="form-select" id="id_service" aria-label="Default select example">
+                                <select class="form-select" id="id_service" aria-label="Default select example"
+                                    onchange="provClient()">
                                     <option selected disabled>Pilih Service</option>
                                 </select>
                             </div>
@@ -56,6 +57,13 @@
                                 <input type="text" class="form-control" id="shipper_address">
                             </div>
                             <div class="mb-3">
+                                <label for="shipper_pricing_area" class="form-label">Shipper Pricing Area</label>
+                                <select class="form-select" id="shipper_pricing_area"
+                                    aria-label="Default select example">
+                                    <option selected disabled>Choose a pricing area</option>
+                                </select>
+                            </div>
+                            {{-- <div class="mb-3">
                                 <label for="shipper_zipcode" class="form-label">Shipper zipcode</label>
                                 <select class="form-select" id="shipper_zipcode" aria-label="Default select example"
                                     onchange="ShipArea(this);">
@@ -74,7 +82,7 @@
                                 <select class="form-select" id="shipper_district" aria-label="Default select example">
                                     <option selected disabled>Pilih district</option>
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="mb-3">
                                 <label for="recipient_name" class="form-label">Recipient name</label>
                                 <input type="text" class="form-control" id="recipient_name">
@@ -88,6 +96,13 @@
                                 <input type="text" class="form-control" id="recipient_address">
                             </div>
                             <div class="mb-3">
+                                <label for="recipient_pricing_area" class="form-label">Shipper Pricing Area</label>
+                                <select class="form-select" id="recipient_pricing_area"
+                                    aria-label="Default select example">
+                                    <option selected disabled>Choose a pricing area</option>
+                                </select>
+                            </div>
+                            {{-- <div class="mb-3">
                                 <label for="recipient_zipcode" class="form-label">Recipient zipcode</label>
                                 <select class="form-select" id="recipient_zipcode" aria-label="Default select example"
                                     onchange="RecipArea(this);">
@@ -106,7 +121,7 @@
                                 <select class="form-select" id="recipient_district" aria-label="Default select example">
                                     <option selected disabled>Pilih Area</option>
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="mb-3">
                                 <label for="weight" class="form-label">Weight</label>
                                 <input type="text" class="form-control" id="weight">
@@ -189,6 +204,52 @@
                 type();
             });
 
+            function provClient(params) {
+                var is_client = $('#is_client').val();
+                if (is_client != 0) {
+                    var id_client = $('#myClient').val();
+                } else {
+                    var id_client = $('#id_client').val();
+                }
+
+                var id_type = $('#id_type').val();
+                var id_service = $('#id_service').val();
+
+                $.ajax({
+                    processing: true,
+                    serverSide: true,
+                    url: "{{ url('/provclient') }}",
+                    type: "get",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id_service: id_service,
+                        id_client: id_client,
+                        id_type: id_type
+                    },
+                    context: document.body,
+                    success: function(data) {
+                        var json = data;
+                        obj = JSON.parse(json);
+
+                        if (obj.status == true) {
+                            var pricing = '';
+                            pricing +=
+                                `<option value="">===Choose a pricing===</option>`
+                            $.each(obj.data, function(k, v) {
+                                pricing +=
+                                    `<option value="${v.id}#${v.price}">${v.nama_provinsi} - ${v.nama_kota} - ${v.nama_kecamatan} - ${v.kelurahan} - ${v.kode_pos}</option>`
+                            });
+
+                            $('#shipper_pricing_area').html(pricing);
+                            $('#recipient_pricing_area').html(pricing);
+                        }
+
+
+                    } //ajax post data
+                });
+
+            }
+
             function id_type(params) {
                 var tipe = $('#id_type').val();
 
@@ -227,10 +288,26 @@
             }
 
             function akumulasi_delivery_fee(params) {
-                var weight = $('#weight').val();
-                var delivery_fee = $('#delivery_fee').val();
 
-                var res = parseInt(weight) * parseInt(delivery_fee);
+                var type = $('#id_type').val();
+                var pricing = '';
+
+                if (type == 3) {
+                    var client_price = $('#shipper_pricing_area').val();
+                    var price = client_price.split('#');
+
+                    pricing += price[1];
+                } else {
+                    var client_price = $('#recipient_pricing_area').val();
+                    var price = client_price.split('#');
+
+                    pricing += price[1];
+                }
+
+                var weight = $('#weight').val();
+
+                var res = parseInt(weight) * parseInt(pricing);
+
                 $('#delivery_fee').val(res);
                 $('#is_akumulasi').val(1);
 
@@ -242,6 +319,7 @@
 
             function iscod(params) {
                 var cod = $('#is_cod').val();
+                var id_client = $('#id_client').val();
 
                 $.ajax({
                     processing: true,
@@ -251,6 +329,7 @@
                     data: {
                         _token: "{{ csrf_token() }}",
                         is_cod: cod,
+                        id_client: id_client,
                     },
                     context: document.body,
                     success: function(data) {
@@ -272,7 +351,7 @@
 
             function isinsurance(params) {
                 var insurance = $('#is_insured').val();
-
+                var id_client = $('#id_client').val();
                 $.ajax({
                     processing: true,
                     serverSide: true,
@@ -281,6 +360,7 @@
                     data: {
                         _token: "{{ csrf_token() }}",
                         insurance: insurance,
+                        id_client: id_client,
                     },
                     context: document.body,
                     success: function(data) {
@@ -310,7 +390,6 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-                        console.log(obj)
 
                         var client = '';
 
@@ -338,7 +417,6 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-                        console.log(obj)
 
                         var shipper = '';
 
@@ -368,7 +446,6 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-                        console.log(obj)
 
                         var area = '';
 
@@ -396,7 +473,6 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-                        console.log(obj)
 
                         var district = '';
 
@@ -424,7 +500,6 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-                        console.log(obj)
 
                         var district = '';
 
@@ -452,7 +527,6 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-                        console.log(obj)
 
                         var area = '';
 
@@ -475,7 +549,6 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-                        console.log(obj)
 
                         var service = '';
 
@@ -499,7 +572,6 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-                        console.log(obj)
 
                         var type = '';
 
@@ -541,6 +613,8 @@
                 var is_akumulasi = $('#is_akumulasi').val();
                 var is_akumulasi_total = $('#is_akumulasi_total').val();
                 var delivery_fee = $('#delivery_fee').val();
+                var shipper_pricing_area = $('#shipper_pricing_area').val();
+                var recipient_pricing_area = $('#recipient_pricing_area').val();
 
                 if (is_akumulasi == 0) {
                     swal('', 'Delivery fee wajib di akumulasikan', 'error');
@@ -550,32 +624,7 @@
                     swal('', 'Total fee wajib di akumulasikan', 'error');
                 }
 
-                console.log(id_client)
-                console.log(id_type)
-                console.log(id_service)
-                console.log(shipper_name)
-                console.log(shipper_phone)
-                console.log(shipper_address)
-                console.log(shipper_zipcode)
-                console.log(shipper_area)
-                console.log(shipper_district)
-                console.log(recipient_name)
-                console.log(recipient_phone)
-                console.log(recipient_address)
-                console.log(recipient_zipcode)
-                console.log(recipient_area)
-                console.log(recipient_district)
-                console.log(weight)
-                console.log(value_of_goods)
-                console.log(is_cod)
-                console.log(is_insured)
-                console.log(insurance_fee)
-                console.log(cod_fee)
-                console.log(total_fee)
-                console.log(collection_date)
-                console.log(delivery_date)
-
-                $('.validasi').addClass('disabled')
+                // $('.validasi').addClass('disabled')
 
                 $.ajax({
                     type: "POST",
@@ -591,15 +640,11 @@
                         shipper_name: shipper_name,
                         shipper_phone: shipper_phone,
                         shipper_address: shipper_address,
-                        shipper_zipcode: shipper_zipcode,
-                        shipper_area: shipper_area,
-                        shipper_district: shipper_district,
+                        shipper_pricing_area: shipper_pricing_area,
                         recipient_name: recipient_name,
                         recipient_phone: recipient_phone,
                         recipient_address: recipient_address,
-                        recipient_zipcode: recipient_zipcode,
-                        recipient_area: recipient_area,
-                        recipient_district: recipient_district,
+                        recipient_pricing_area: recipient_pricing_area,
                         delivery_fee: delivery_fee,
                         weight: weight,
                         value_of_goods: value_of_goods,

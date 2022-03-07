@@ -101,6 +101,7 @@ Route::group(['prefix' => 'pricings', 'as' => 'pricing.'], function () {
 
 // Reff Order
 Route::get('/zipcodeOrder', 'OrderController@zipcodeOrder')->name('zipcodeOrder');
+Route::get('/provclient', 'OrderController@provclient')->name('provclient');
 
 // Reff
 Route::get('/reffClient', 'OrderController@reffClient')->name('reffClient');
@@ -118,3 +119,14 @@ Route::get('/reffClientCategory', 'ClientController@reffClientCategory')->name('
 Route::get('/reffRoles', 'UserController@reffRoles')->name('reffRoles');
 Route::get('/reffMenuFunction', 'MenuController@reffMenuFunction')->name('reffMenuFunction');
 Route::post('/updateLogBulk', 'OrderController@updateLogBulk')->name('updateLogBulk');
+
+// REFF AREA
+Route::get('/reff_provinsi', 'OrderController@reff_provinsi')->name('reff_provinsi');
+Route::get('/reff_kota', 'OrderController@reff_kota')->name('reff_kota');
+Route::get('/reff_kecamatan', 'OrderController@reff_kecamatan')->name('reff_kecamatan');
+Route::get('/reff_kelurahan', 'OrderController@reff_kelurahan')->name('reff_kelurahan');
+Route::get('/reff_kodepos', 'OrderController@reff_kodepos')->name('reff_kodepos');
+Route::get('/reff_all_kota', 'OrderController@reff_all_kota')->name('reff_all_kota');
+Route::get('/reff_all_kecamatan', 'OrderController@reff_all_kecamatan')->name('reff_all_kecamatan');
+Route::get('/reff_all_kelurahan', 'OrderController@reff_all_kelurahan')->name('reff_all_kelurahan');
+Route::get('/reff_all_kodepos', 'OrderController@reff_all_kodepos')->name('reff_all_kodepos');
