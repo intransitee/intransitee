@@ -105,7 +105,8 @@ class PricingController extends Controller
     public function get_pricing(Request $request)
     {
         // dd($request->client);
-        $pricing = DB::table('tb_pricing')->select('tb_pricing.id', 'tb_client.account_name', 'reff_service.service', 'reff_type.type', 'price', 'tb_provinsi.nama_provinsi', 'tb_kota.nama_kota', 'tb_kecamatan.nama_kecamatan', 'tb_kelurahan.kelurahan', 'kode_pos')
+        $pricing = DB::table('tb_pricing')
+            ->select('tb_pricing.id', 'tb_client.account_name', 'reff_service.service', 'reff_type.type', 'price', 'tb_provinsi.nama_provinsi', 'tb_kota.nama_kota', 'tb_kecamatan.nama_kecamatan', 'tb_kelurahan.kelurahan', 'kode_pos')
             ->join('tb_client', 'tb_client.id', '=', 'tb_pricing.id_client')
             ->join('reff_service', 'reff_service.id', '=', 'tb_pricing.id_service')
             ->join('reff_type', 'reff_type.id', '=', 'tb_pricing.id_type')
@@ -116,7 +117,7 @@ class PricingController extends Controller
             ->where('tb_pricing.id_client', $request->client)
             ->orderBy('tb_pricing.id', 'DESC')
             ->get()->toArray();
-
+        // dd($pricing);
         if ($pricing) {
             # code...
             $data_result = array(
