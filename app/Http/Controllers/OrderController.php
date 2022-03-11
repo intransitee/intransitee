@@ -355,7 +355,7 @@ class OrderController extends Controller
 
     public function delete(Request $request)
     {
-        $delete = DB::table('tb_order')->where('id', $request->id)->delete();
+        $delete = DB::table('tb_order_backup')->where('id', $request->id)->delete();
 
 
         if ($delete) {
@@ -477,7 +477,7 @@ class OrderController extends Controller
 
     public function updateLogBulk()
     {
-        $check = DB::table('tb_order')->where('bulk_log_status', 0)->get();
+        $check = DB::table('tb_order_backup')->where('bulk_log_status', 0)->get();
 
         foreach ($check as $key => $value) {
             # code...
@@ -495,7 +495,7 @@ class OrderController extends Controller
                 'bulk_log_status' => 1
             );
 
-            $udpate = DB::table('tb_order')->where('id', $value->id)->update($bulkUpdate);
+            $udpate = DB::table('tb_order_backup')->where('id', $value->id)->update($bulkUpdate);
         }
 
         if ($check) {
