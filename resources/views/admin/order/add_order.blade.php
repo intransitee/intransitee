@@ -1,4 +1,47 @@
 @section('content')
+
+    <style>
+        .select2-container {
+            width: 100% !important;
+            background-color: #283144;
+        }
+
+        .select2-search--dropdown .select2-search__field {
+            width: 100%;
+            background-color: #283144;
+        }
+
+        .select2-selection__rendered {
+            line-height: 31px !important;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 35px !important;
+            background-color: #283144;
+        }
+
+        .select2-selection__arrow {
+            height: 34px !important;
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            background-color: #283144;
+        }
+
+        .select2-search {
+            background-color: #283144;
+        }
+
+        .select2-search input {
+            background-color: #283144;
+        }
+
+        .select2-results {
+            background-color: #283144;
+        }
+
+    </style>
+
     <div class="container-xxl flex-grow-1 container-p-y">
         <h4 class="breadcrumb-wrapper py-3 mb-4">
             <span class="text-muted fw-light">Forms/</span> Add order
@@ -202,10 +245,16 @@
                 service();
                 zipcode();
                 type();
+
+                // INIT SELECT2
+                $('#id_client').select2({
+                    width: 'resolve' // need to override the changed default
+                });
             });
 
             function provClient(params) {
                 var is_client = $('#is_client').val();
+
                 if (is_client != 0) {
                     var id_client = $('#myClient').val();
                 } else {
@@ -214,6 +263,21 @@
 
                 var id_type = $('#id_type').val();
                 var id_service = $('#id_service').val();
+
+                if (id_type == null) {
+                    swal("", "Silahkan pilih client, Type & Service terlebih dahulu", "error");
+                    return;
+                }
+
+                if (id_client == null) {
+                    swal("", "Silahkan pilih client, Type & Service terlebih dahulu", "error");
+                    return;
+                }
+
+                if (id_service == null) {
+                    swal("", "Silahkan pilih client, Type & Service terlebih dahulu", "error");
+                    return;
+                }
 
                 $.ajax({
                     processing: true,
@@ -230,7 +294,7 @@
                     success: function(data) {
                         var json = data;
                         obj = JSON.parse(json);
-
+                        console.log(obj)
                         if (obj.status == true) {
                             var pricing = '';
                             pricing +=
@@ -242,6 +306,9 @@
 
                             $('#shipper_pricing_area').html(pricing);
                             $('#recipient_pricing_area').html(pricing);
+                        } else {
+                            swal("", "Tidak ada area yang terdaftar berdasarkan type & service pada client",
+                                "error");
                         }
 
 

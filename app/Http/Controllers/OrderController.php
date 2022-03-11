@@ -1070,7 +1070,6 @@ class OrderController extends Controller
 
     public function provclient(Request $request)
     {
-        // dd($request->id_service);
 
         $pricing = DB::table('tb_pricing')->select('tb_pricing.id', 'tb_client.account_name', 'reff_service.service', 'reff_type.type', 'price', 'tb_provinsi.nama_provinsi', 'tb_kota.nama_kota', 'tb_kecamatan.nama_kecamatan', 'tb_kelurahan.kelurahan', 'kode_pos')
             ->join('tb_client', 'tb_client.id', '=', 'tb_pricing.id_client')
