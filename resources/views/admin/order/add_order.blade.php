@@ -1,44 +1,44 @@
 @section('content')
 
     <style>
-        .select2-container {
-            width: 100% !important;
-            background-color: #283144;
-        }
+        /* .select2-container {
+                                                                                                                                                                width: 100% !important;
+                                                                                                                                                                background-color: #283144;
+                                                                                                                                                            }
 
-        .select2-search--dropdown .select2-search__field {
-            width: 100%;
-            background-color: #283144;
-        }
+                                                                                                                                                            .select2-search--dropdown .select2-search__field {
+                                                                                                                                                                width: 100%;
+                                                                                                                                                                background-color: #283144;
+                                                                                                                                                            }
 
-        .select2-selection__rendered {
-            line-height: 31px !important;
-        }
+                                                                                                                                                            .select2-selection__rendered {
+                                                                                                                                                                line-height: 31px !important;
+                                                                                                                                                            }
 
-        .select2-container .select2-selection--single {
-            height: 35px !important;
-            background-color: #283144;
-        }
+                                                                                                                                                            .select2-container .select2-selection--single {
+                                                                                                                                                                height: 35px !important;
+                                                                                                                                                                background-color: #283144;
+                                                                                                                                                            }
 
-        .select2-selection__arrow {
-            height: 34px !important;
-        }
+                                                                                                                                                            .select2-selection__arrow {
+                                                                                                                                                                height: 34px !important;
+                                                                                                                                                            }
 
-        .select2-container--default .select2-selection--multiple {
-            background-color: #283144;
-        }
+                                                                                                                                                            .select2-container--default .select2-selection--multiple {
+                                                                                                                                                                background-color: #283144;
+                                                                                                                                                            }
 
-        .select2-search {
-            background-color: #283144;
-        }
+                                                                                                                                                            .select2-search {
+                                                                                                                                                                background-color: #283144;
+                                                                                                                                                            }
 
-        .select2-search input {
-            background-color: #283144;
-        }
+                                                                                                                                                            .select2-search input {
+                                                                                                                                                                background-color: #283144;
+                                                                                                                                                            }
 
-        .select2-results {
-            background-color: #283144;
-        }
+                                                                                                                                                            .select2-results {
+                                                                                                                                                                background-color: #283144;
+                                                                                                                                                            } */
 
     </style>
 
@@ -68,7 +68,8 @@
                             @if (session('role') != 3)
                                 <div class="mb-3">
                                     <label for="id_client" class="form-label">Client</label>
-                                    <select class="form-select" id="id_client" aria-label="Default select example">
+                                    <select class="select2 form-select form-select-lg" id="id_client"
+                                        aria-label="Default select example" data-allow-clear="true">
                                         <option selected disabled>Pilih Client</option>
                                     </select>
                                 </div>
@@ -76,14 +77,15 @@
 
                             <div class="mb-3">
                                 <label for="id_type" class="form-label">Type</label>
-                                <select class="form-select" id="id_type" aria-label="Default select example">
+                                <select class="select2 form-select form-select-lg" id="id_type"
+                                    aria-label="Default select example" data-allow-clear="true">
                                     <option selected disabled>Pilih Type</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label for="id_service" class="form-label">Service</label>
-                                <select class="form-select" id="id_service" aria-label="Default select example"
-                                    onchange="provClient()">
+                                <select class="select2 form-select form-select-lg" id="id_service"
+                                    aria-label="Default select example" onchange="provClient()" data-allow-clear="true">
                                     <option selected disabled>Pilih Service</option>
                                 </select>
                             </div>
@@ -101,8 +103,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="shipper_pricing_area" class="form-label">Shipper Pricing Area</label>
-                                <select class="form-select" id="shipper_pricing_area"
-                                    aria-label="Default select example">
+                                <select class="select2 form-select form-select-lg" id="shipper_pricing_area"
+                                    aria-label="Default select example" data-allow-clear="true">
                                     <option selected disabled>Choose a pricing area</option>
                                 </select>
                             </div>
@@ -140,8 +142,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="recipient_pricing_area" class="form-label">Shipper Pricing Area</label>
-                                <select class="form-select" id="recipient_pricing_area"
-                                    aria-label="Default select example">
+                                <select class="select2 form-select form-select-lg" id="recipient_pricing_area"
+                                    aria-label="Default select example" data-allow-clear="true">
                                     <option selected disabled>Choose a pricing area</option>
                                 </select>
                             </div>
@@ -184,7 +186,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="value_of_goods" class="form-label">Value of goods</label>
-                                <input type="text" class="form-control" id="value_of_goods">
+                                <input type="text" class="form-control" onkeypress="return hanyaAngka(event)"
+                                    id="value_of_goods">
                             </div>
                             <div class="mb-3">
                                 <label for="is_cod" class="form-label">Is cod</label>
@@ -374,7 +377,7 @@
                 var weight = $('#weight').val();
 
                 var res = parseInt(weight) * parseInt(pricing);
-
+                console.log(formatMoney(res))
                 $('#delivery_fee').val(res);
                 $('#is_akumulasi').val(1);
 
@@ -419,6 +422,7 @@
             function isinsurance(params) {
                 var insurance = $('#is_insured').val();
                 var id_client = $('#id_client').val();
+
                 $.ajax({
                     processing: true,
                     serverSide: true,
@@ -731,10 +735,30 @@
                         if (obj.status == true) {
                             $("#addorder")[0].reset();
                             $('.validasi').removeClass('disabled')
-                            window.location.href = '{{ route('order.order') }}';
+                            Swal.fire({
+                                text: obj.message,
+                                icon: 'success',
+                                customClass: {
+                                    confirmButton: 'btn btn-primary'
+                                },
+                                buttonsStyling: false
+                            }).then(okay => {
+                                if (okay) {
+                                    window.location.href = '{{ route('order.order') }}';
+                                }
+                            });
                         } else {
                             $("#addorder")[0].reset();
                             $('.validasi').removeClass('disabled')
+
+                            Swal.fire({
+                                text: obj.message,
+                                icon: 'error',
+                                customClass: {
+                                    confirmButton: 'btn btn-primary'
+                                },
+                                buttonsStyling: false
+                            });
                         }
 
                     } //ajax post data

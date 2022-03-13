@@ -227,7 +227,8 @@
                 </div>
                 <div class="mb-3">
                     <label for="new_status" class="form-label">Status</label>
-                    <select class="form-select" id="new_status" aria-label="Default select example">
+                    <select class="select2 form-select form-select-lg" id="new_status" aria-label="Default select example"
+                        data-allow-clear="true">
                         <option selected disabled>Choose Status</option>
                     </select>
                 </div>

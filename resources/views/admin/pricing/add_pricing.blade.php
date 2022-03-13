@@ -23,53 +23,56 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="service">Service</label>
-                                <select class="form-select" id="service" aria-label="Default select example">
+                                <select class="select2 form-select form-select-lg" id="service"
+                                    aria-label="Default select example" data-allow-clear="true">
                                     <option selected disabled>Pilih Service</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label" for="type">Type</label>
-                                <select class="form-select" id="type" aria-label="Default select example">
+                                <select class="select2 form-select form-select-lg" id="type"
+                                    aria-label="Default select example" data-allow-clear="true">
                                     <option selected disabled>Pilih Type</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label" for="province">Province</label>
-                                <select class="form-select" id="province" aria-label="Default select example"
-                                    onchange="getKota()">
+                                <select class="select2 form-select form-select-lg" id="province"
+                                    aria-label="Default select example" data-allow-clear="true" onchange="getKota()">
                                     <option selected disabled>Pilih province</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label" for="city">City</label>
-                                <select class="form-select" id="city" aria-label="Default select example"
-                                    onchange="getDistrict()">
+                                <select class="select2 form-select form-select-lg" id="city"
+                                    aria-label="Default select example" data-allow-clear="true" onchange="getDistrict()">
                                     <option selected disabled>Choose a city</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label" for="district">District</label>
-                                <select class="form-select" id="district" aria-label="Default select example"
-                                    onchange="getSubDistrict()">
+                                <select class="select2 form-select form-select-lg" id="district"
+                                    aria-label="Default select example" data-allow-clear="true" onchange="getSubDistrict()">
                                     <option selected disabled>Choose a district</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label" for="subdistrict">Subdistrict</label>
-                                <select class="form-select" id="subdistrict" aria-label="Default select example"
-                                    onchange="getKodepos()">
+                                <select class="select2 form-select form-select-lg" id="subdistrict"
+                                    aria-label="Default select example" data-allow-clear="true" onchange="getKodepos()">
                                     <option selected disabled>Choose a subdistrict</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label" for="kodepos">Postal Code</label>
-                                <select class="form-select" id="kodepos" aria-label="Default select example">
+                                <select class="select2 form-select form-select-lg" id="kodepos"
+                                    aria-label="Default select example" data-allow-clear="true">
                                     <option selected disabled>Choose a postal code</option>
                                 </select>
                             </div>
@@ -347,10 +350,31 @@
                         if (obj.status == true) {
                             $("#addpricing")[0].reset();
                             $('.validasi').removeClass('disabled')
-                            window.history.back();
+
+                            Swal.fire({
+                                text: obj.message,
+                                icon: 'success',
+                                customClass: {
+                                    confirmButton: 'btn btn-primary'
+                                },
+                                buttonsStyling: false
+                            }).then(okay => {
+                                if (okay) {
+                                    window.history.back();
+                                }
+                            });
                         } else {
                             $("#addpricing")[0].reset();
                             $('.validasi').removeClass('disabled')
+
+                            Swal.fire({
+                                text: obj.message,
+                                icon: 'error',
+                                customClass: {
+                                    confirmButton: 'btn btn-primary'
+                                },
+                                buttonsStyling: false
+                            });
                         }
 
                     } //ajax post data
