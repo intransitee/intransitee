@@ -478,7 +478,7 @@ class OrderController extends Controller
     public function updateLogBulk()
     {
         $check = DB::table('tb_order_backup')->where('bulk_log_status', 0)->get();
-
+        // dd($check);
         foreach ($check as $key => $value) {
             # code...
             $data = array(

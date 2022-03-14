@@ -23,8 +23,12 @@ class ImportOrder implements ToModel, WithStartRow
     {
         // dd($row);
         $check = DB::table('tb_order_backup')->orderBy('id', 'DESC')->first();
-        // dd($check);
-        $res = $check->id + 1;
+        if ($check == null) {
+            # code...
+            $res = 1;
+        } else {
+            $res = $check->id + 1;
+        }
 
         if ($res < 10) {
             # code...
@@ -38,13 +42,7 @@ class ImportOrder implements ToModel, WithStartRow
 
         $generateawb = 'IN' . date("Y-m-d") . $number;
         $awb = str_replace('-', '', $generateawb);
-        // dd($awb);
-        // $ship_temp_area = DB::table('reff_area')->where('id_area', $row[7])->first();
-        // $ship_temp_district = DB::table('reff_area')->where('id_district', $row[8])->first();
 
-        // $recip_temp_area = DB::table('reff_area')->where('id_area', $row[13])->first();
-        // $recip_temp_district = DB::table('reff_area')->where('id_district', $row[14])->first();
-        // dd($row);
         return new Order([
             'awb' => $awb,
             'reff_id' => $row[20],
