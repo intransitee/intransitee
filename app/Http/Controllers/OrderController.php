@@ -20,6 +20,22 @@ class OrderController extends Controller
         $this->middleware('preventBackHistory');
     }
 
+    public function test()
+    {
+        $data = array(
+            'nama' => 'test-nya'
+        );
+
+        $insert = DB::table('api')->insert($data);
+
+        $data_result = array(
+            'status' => true,
+            'message' => "Test"
+        );
+
+        return response()->json($data_result);
+    }
+
     public function index()
     {
         return view('admin.master.master')->nest('child', 'admin.order.list_order');

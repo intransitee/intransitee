@@ -122,6 +122,7 @@ Route::post('/updateLogBulk', 'OrderController@updateLogBulk')->name('updateLogB
 Route::post('/updateLogBulkAfterImport', 'OrderController@updateLogBulkAfterImport')->name('updateLogBulkAfterImport');
 Route::get('/downloadAddOrder', 'OrderController@downloadAddOrder')->name('downloadAddOrder');
 Route::get('/downloadEditOrder', 'OrderController@downloadEditOrder')->name('downloadEditOrder');
+Route::get('/test', 'OrderController@test')->name('test');
 
 // REFF AREA
 Route::get('/reff_provinsi', 'OrderController@reff_provinsi')->name('reff_provinsi');
