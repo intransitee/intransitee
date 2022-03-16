@@ -119,6 +119,9 @@ Route::get('/reffClientCategory', 'ClientController@reffClientCategory')->name('
 Route::get('/reffRoles', 'UserController@reffRoles')->name('reffRoles');
 Route::get('/reffMenuFunction', 'MenuController@reffMenuFunction')->name('reffMenuFunction');
 Route::post('/updateLogBulk', 'OrderController@updateLogBulk')->name('updateLogBulk');
+Route::post('/updateLogBulkAfterImport', 'OrderController@updateLogBulkAfterImport')->name('updateLogBulkAfterImport');
+Route::get('/downloadAddOrder', 'OrderController@downloadAddOrder')->name('downloadAddOrder');
+Route::get('/downloadEditOrder', 'OrderController@downloadEditOrder')->name('downloadEditOrder');
 
 // REFF AREA
 Route::get('/reff_provinsi', 'OrderController@reff_provinsi')->name('reff_provinsi');

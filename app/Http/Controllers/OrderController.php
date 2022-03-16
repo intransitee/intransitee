@@ -438,41 +438,61 @@ class OrderController extends Controller
 
             $c = collect(head($data));
 
+            // create bulk array
             foreach ($c as $key => $value) {
-
                 $bulk[] = array(
-                    'awb' => $value[22],
-                    'reff_id' => $value[20],
-                    'id_client' => $value[0],
-                    'id_type' => $value[1],
-                    "id_service" => $value[2],
-                    "shipper_name" => $value[3],
-                    "shipper_phone" => $value[4],
-                    "shipper_address" => $value[5],
-                    "shipper_pricing_area" => $value[6],
-                    "recipient_name" => $value[7],
-                    "recipient_phone" => $value[8],
-                    "recipient_address" => $value[9],
-                    "recipient_pricing_area" => $value[10],
-                    "weight" => $value[11],
-                    "value_of_goods" => $value[12],
-                    "is_cod" => $value[13],
-                    "is_insured" => $value[14],
-                    "insurance_fee" => $value[15],
-                    "cod_fee" => $value[16],
-                    "total_fee" => $value[17],
-                    "collection_scheduled_date" => $value[18],
-                    "delivery_scheduled_date" => $value[19],
-                    "delivery_fee" => $value[21]
+                    'awb' => $value[0],
+                    'id_status' => $value[1],
                 );
                 # code...
             }
-            foreach ($bulk as $num => $item) {
-                $update = DB::table('tb_order_backup')->where('awb', $item['awb'])->update($item);
+
+            foreach ($bulk as $k => $val) {
+                if ($val['awb'] == null) {
+                    // remove orange apps
+                    unset($bulk[$k]);
+                }
             }
 
-            return redirect()->route('order.order')->with('update', 'Berhasil ubah order');
+            $res = [];
+            foreach ($bulk as $num => $item) {
+                $update = DB::table('tb_order_backup')->where('awb', $item['awb'])->update($item);
+                $t = array(
+                    'awb' => $item['awb'],
+                    'status' => $item['id_status']
+                );
+
+                array_push($res, $t);
+            }
+
+            $temp = json_encode($res);
+
+            return redirect()->route('order.order')->with('update', $temp);
         }
+    }
+
+    public function downloadAddOrder(Request $request)
+    {
+        $path = public_path() . "/template/bulk-add-order.xlsx";
+
+        $filename = 'format_import_add_order.xlsx';
+        // Download file with custom headers
+        return response()->download($path, $filename, [
+            'Content-Type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
+    }
+
+    public function downloadEditOrder(Request $request)
+    {
+        $path = public_path() . "/template/bulk-edit-order.xlsx";
+
+        $filename = 'format_import_edit_order.xlsx';
+        // Download file with custom headers
+        return response()->download($path, $filename, [
+            'Content-Type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
     }
 
     public function updateLogBulk()
@@ -514,6 +534,40 @@ class OrderController extends Controller
 
             return json_encode($data_result);
         }
+    }
+
+    public function updateLogBulkAfterImport(Request $request)
+    {
+        $dataku = json_decode($request->data);
+
+        foreach ($dataku as $key => $value) {
+            $check = DB::table('tb_order_backup')->where('awb', $value->awb)->get();
+            # code...
+            $data = array(
+                'id_order' => $check[$key]->id,
+                'id_status' => $value->status,
+                'deskripsi' => session('username') . " membuat data order baru",
+                'id_user' => session('id'),
+            );
+
+            $logging = DB::table('reff_order_logs')->insert($data);
+
+            if ($check[$key]->bulk_log_status == 0) {
+                # code...
+                //Update bulk log
+                $bulkUpdate = array(
+                    'bulk_log_status' => 1
+                );
+                $udpate = DB::table('tb_order_backup')->where('id', $check[$key]->id)->update($bulkUpdate);
+            }
+            return;
+        }
+
+
+        $data_result = array(
+            'status' => true,
+            'message' => "Berhasil update logs",
+        );
     }
 
     public function reffClient()

@@ -322,13 +322,35 @@
                     obj = JSON.parse(json);
 
                     if (obj.status == true) {
-                        $("#changeStatus")[0].reset();
-                        $('.validasi').removeClass('disabled')
-                        reload();
-                        $('.tutupah').trigger('click');
+
+
+                        Swal.fire({
+                            text: obj.message,
+                            icon: 'success',
+                            customClass: {
+                                confirmButton: 'btn btn-primary'
+                            },
+                            buttonsStyling: false
+                        }).then(okay => {
+                            if (okay) {
+                                $("#changeStatus")[0].reset();
+                                $('.validasi').removeClass('disabled')
+                                reload();
+                                $('.tutupah').trigger('click');
+                            }
+                        });
+
                     } else {
                         $("#changeStatus")[0].reset();
                         $('.validasi').removeClass('disabled')
+                        Swal.fire({
+                            text: obj.message,
+                            icon: 'error',
+                            customClass: {
+                                confirmButton: 'btn btn-primary'
+                            },
+                            buttonsStyling: false
+                        });
                     }
 
                 } //ajax post data
